@@ -1,14 +1,23 @@
 <script setup>
 
+import { useRouter } from 'vue-router'
+
+
+const router = useRouter()
+
 
 </script>
 
 <template>
   <div class="main-container">
     <div class="header-container">
-      <button class="back-button"></button>
+      <div @click="router.back()" class="back-button"><img src="../assets/icons/back-button.png" alt="" class="back-img"></div>
     </div>
     <form action="" class="form-container">
+      <div class="form-header-container">
+        <span class="form-header">User Info</span>
+
+      </div>
 
     </form>
 
@@ -21,8 +30,8 @@
 
 .header-container {
   width: 100vw;
-  height: 70px;
-  background: black;
+  height: 80px;
+  background: rgb(208, 208, 208);
   position: absolute;
   top: 0;
   display: flex;
@@ -31,14 +40,42 @@
 
 }
 
+.back-img {
+  width: 50px;
+
+}
+
 .back-button {
-  margin-left: 4rem;
+  width: 50px;
+  height: 50px;
+
+  margin-left: 2rem;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  transform: scale(1.1);
+}
+
+.form-header-container {
+  height: 70px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.form-header {
+  font-size: 30px;
 }
 
 .form-container {
   width: 800px;
   height: 600px;
-  background: blue;
+  background: rgb(173, 173, 173);
+  border-radius: 10px;
+
+
 }
 
 .main-container {
