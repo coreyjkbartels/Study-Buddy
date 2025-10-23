@@ -2,7 +2,7 @@
 
 import { useRouter } from 'vue-router'
 import { useTemplateRef } from 'vue'
-import Modal from '../components/modal.vue'
+import Modal from '../components/Modal.vue'
 
 const modal = useTemplateRef('name-modal')
 
