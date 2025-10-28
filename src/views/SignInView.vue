@@ -90,11 +90,94 @@ async function signIn(event) {
 </template>
 
 <style scoped>
-.page {
+:deep(body) {
+  background-color: #f9fafb;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container,
+.wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: #e3f2fd;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+form {
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+label {
+  display: block;
+  color: #4b5563;
+  font-size: 0.875rem;
+  margin-bottom: 0.4rem;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+button[type="submit"] {
+  background-color: #1976d2;
+  color: white;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #4338ca;
+}
+
+p {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+a {
+  color: #4f46e5;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 </style>
