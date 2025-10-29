@@ -1,36 +1,84 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
+const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
 const friends = ref([]);
 const requests = ref([]);
 const username = ref("");
 
-function fetchFriends() {
-  friends.value = [
-    { id: 1, username: "alice" },
-    { id: 2, username: "bob" }
-  ];
-}
-
-function fetchRequests() {
-  requests.value = [
-    { id: 1, from: "charlie" },
-    { id: 2, from: "diana" }
-  ];
-}
-
-function sendRequest() {
-  if (username.value.trim()) {
-    requests.value.push({ id: Date.now(), from: username.value });
-    username.value = "";
+async function fetchFriends() {
+  try {
+    const res = await fetch(`${API_BASE}/friends`, { credentials: "include" });
+    if (!res.ok) return;
+    const data = await res.json();
+    friends.value = data.friends || [];
+  } catch (err) {
+    console.error(err);
   }
 }
 
-function acceptRequest(id) {
-  const r = requests.value.find((req) => req.id === id);
-  if (r) {
-    friends.value.push({ id: Date.now(), username: r.from });
-    requests.value = requests.value.filter((req) => req.id !== id);
+async function fetchRequests() {
+  try {
+    const res = await fetch(`${API_BASE}/friends/requests`, { credentials: "include" });
+    if (!res.ok) return;
+    const data = await res.json();
+    requests.value = (data.friendRequests || []).map((req) => ({
+      id: req._id,
+      from: req.sender?.[0]?.userName || "unknown",
+      to: req.receiver?.[0]?.userName || "unknown",
+      isAccepted: req.isAccepted,
+    }));
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function sendRequest() {
+  if (!username.value.trim()) return;
+  try {
+    const userRes = await fetch(`${API_BASE}/users/by-username/${username.value}`, {
+      credentials: "include",
+    });
+    if (!userRes.ok) return alert("User not found.");
+    const userData = await userRes.json();
+    const friendId = userData.user?._id;
+    if (!friendId) return alert("User not found.");
+
+    const res = await fetch(`${API_BASE}/friends/requests`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ friendId }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    requests.value.push({
+      id: data.friendRequest._id,
+      from: data.friendRequest.sender.userName,
+    });
+    username.value = "";
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function acceptRequest(id) {
+  try {
+    const res = await fetch(`${API_BASE}/friends/requests/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isAccepted: true }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    friends.value.push({
+      id: Date.now(),
+      username: data.friendRequest.sender.userName,
+    });
+    requests.value = requests.value.filter((r) => r.id !== id);
+  } catch (err) {
+    console.error(err);
   }
 }
 
