@@ -7,11 +7,6 @@
         <RouterLink to="/signin" class="nav-btn">Sign In</RouterLink>
         <RouterLink to="/signup" class="nav-btn">Sign Up</RouterLink>
       </div>
-
-      <!-- temp -->
-      <div class="temp">
-        <RouterLink to="/home" class="temp-btn">Enter App (Temp)</RouterLink>
-      </div>
     </main>
   </div>
 </template>
