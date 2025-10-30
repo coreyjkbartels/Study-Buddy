@@ -21,7 +21,7 @@ async function signIn(event) {
     password: password.value
   }
     
-  const url = '/user/signin'
+  const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/signin'
 
   const options = {
     method: "POST",
