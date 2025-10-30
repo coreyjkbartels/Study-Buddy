@@ -37,15 +37,15 @@ async function Join(event) {
   }
   console.log(data)
 
-  // const url =
+  const url = '/user'
 
-  // const options = {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify(data),
-  // }
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }
 
   let response = await fetch(url, options)
   console.log("Response:", response.status);
