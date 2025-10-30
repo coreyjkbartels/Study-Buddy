@@ -20,16 +20,16 @@ async function signIn(event) {
     email: email.value,
     password: password.value
   }
+    
+  const url = '/user/signin'
 
-  // const url =
-
-  // const options = {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify(data),
-  // }
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }
 
   let response = await fetch(url, options)
 
