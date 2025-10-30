@@ -37,7 +37,7 @@ async function Join(event) {
   }
   console.log(data)
 
-  const url = '/user'
+  const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
 
   const options = {
     method: "POST",
