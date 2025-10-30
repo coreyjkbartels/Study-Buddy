@@ -86,7 +86,7 @@ async function Join(event) {
         <h1>Join</h1>
         <p v-if="errormsg" class="err">{{ errormsg }}</p>
         <div class="input-box">
-          <input type="text" v-model="firstName" placeholder="First Name" unique required>
+          <input type="text" v-model="firstName" placeholder="First Name" required>
         </div>
         <div class="input-box">
           <input type="text" v-model="lastName" placeholder="Last Name" required>
