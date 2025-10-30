@@ -21,7 +21,7 @@ async function signIn(event) {
     password: password.value
   }
     
-  const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/signin'
+  const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/sign-in'
 
   const options = {
     method: "POST",
@@ -36,10 +36,10 @@ async function signIn(event) {
   if (response.status === 200) {
     const data = await response.json()
     localStorage.setItem("token", data.token)
-    localStorage.setItem("userName", data.user.userName)
+    localStorage.setItem("username", data.user.username)
 
     router.push({
-      name: 'normal'
+      name: 'home'
     })
   }
   else if (response.status === 400) {

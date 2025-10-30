@@ -1,13 +1,14 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Header from '@/components/Header.vue';
 
 const router = useRouter()
 
 const firstName = ref("")
 const lastName = ref("")
 const email = ref("")
-const userName = ref("")
+const username = ref("")
 const password = ref("")
 const confirmpassword = ref("")
 const errormsg = ref("")
@@ -15,7 +16,7 @@ const errormsg = ref("")
 async function Join(event) {
   event.preventDefault()
 
-  if (!firstName.value || !lastName.value || !email.value || !userName.value || !password.value || !confirmpassword.value) {
+  if (!firstName.value || !lastName.value || !email.value || !username.value || !password.value || !confirmpassword.value) {
     errormsg.value = "Fill out all the fields"
     return
   }
@@ -29,7 +30,7 @@ async function Join(event) {
   }
 
   const data = {
-    userName: userName.value,
+    username: username.value,
     firstName: firstName.value,
     lastName: lastName.value,
     email: email.value,
@@ -52,13 +53,13 @@ async function Join(event) {
   if (response.status === 201) {
     const data = await response.json()
     console.log(data.status, response.text())
-    localStorage.setItem("userName", data.user.userName)
+    localStorage.setItem("username", data.user.username)
     localStorage.setItem('firstName', data.user.firstName)
     localStorage.setItem('lastName', data.user.lastName)
     localStorage.setItem('email', data.user.email)
 
     router.push({
-      name: 'normal'
+      name: 'home'
     })
   }
   else if (response.status === 400) {
@@ -95,7 +96,7 @@ async function Join(event) {
           <input type="email" v-model="email" placeholder="Email" required>
         </div>
         <div class="input-box">
-          <input type="text" v-model="userName" placeholder="Username" required>
+          <input type="text" v-model="username" placeholder="Username" required>
         </div>
         <div class="input-box">
           <input type="password" v-model="password" placeholder="Password" required>
