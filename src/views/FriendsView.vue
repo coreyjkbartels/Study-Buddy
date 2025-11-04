@@ -5,18 +5,38 @@ import Header from "@/components/Header.vue";
 const username = ref("");
 const friends = ref([]);
 const requests = ref([]);
+const currentUser = ref(null);
 const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
+
+function authHeaders() {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+async function fetchCurrentUser() {
+  try {
+    const response = await fetch(`${API_BASE}/user`, {
+      method: "GET",
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch user");
+    const data = await response.json();
+    currentUser.value = data.user;
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+  }
+}
 
 async function fetchFriends() {
   try {
     const response = await fetch(`${API_BASE}/friends`, {
       method: "GET",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
     });
-
     if (!response.ok) throw new Error(`Failed to fetch friends (${response.status})`);
-
     const data = await response.json();
     friends.value = Array.isArray(data.friends) ? data.friends : [];
   } catch (error) {
@@ -28,12 +48,9 @@ async function fetchRequests() {
   try {
     const response = await fetch(`${API_BASE}/friends/requests`, {
       method: "GET",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
     });
-
     if (!response.ok) throw new Error(`Failed to fetch requests (${response.status})`);
-
     const data = await response.json();
     const userId = localStorage.getItem("userId");
 
@@ -41,59 +58,23 @@ async function fetchRequests() {
       .filter((r) => !r.isAccepted && r.receiver[0]?._id === userId)
       .map((r) => ({
         id: r._id,
-        from: r.sender[0]?.userName || "Unknown User",
+        from: r.sender[0]?.username || "Unknown User",
       }));
   } catch (error) {
     console.error("Error fetching friend requests:", error);
   }
 }
 
+// Since we can’t search users by username, disable the search feature for now
 async function sendRequest() {
-  if (!username.value.trim()) return;
-
-  try {
-    const searchResponse = await fetch(`${API_BASE}/users?userName=${username.value}`, {
-      method: "GET",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (!searchResponse.ok) {
-      alert("User not found");
-      return;
-    }
-
-    const searchData = await searchResponse.json();
-    const friendUser = searchData.user || searchData.users?.[0];
-
-    if (!friendUser) {
-      alert("User not found");
-      return;
-    }
-
-    const response = await fetch(`${API_BASE}/friends/requests/${friendUser._id}`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (!response.ok) throw new Error(`Failed to send friend request (${response.status})`);
-
-    alert(`Friend request sent to ${friendUser.userName}`);
-    username.value = "";
-    await fetchRequests();
-  } catch (error) {
-    console.error("Error sending friend request:", error);
-    alert("Failed to send friend request.");
-  }
+  alert("User search is not available in this version of the API.");
 }
 
 async function acceptRequest(id) {
   try {
     const response = await fetch(`${API_BASE}/friends/requests/${id}`, {
       method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({ isAccepted: true }),
     });
 
@@ -108,11 +89,11 @@ async function acceptRequest(id) {
 }
 
 onMounted(() => {
+  fetchCurrentUser();
   fetchFriends();
   fetchRequests();
 });
 </script>
-
 
 
 <template>
@@ -129,7 +110,7 @@ onMounted(() => {
       <h2>Your Friends ({{ friends.length }})</h2>
       <ul>
         <li v-for="f in friends" :key="f._id || f.id">
-          {{ f.userName || f.username }}
+          {{ f.username }}
         </li>
       </ul>
     </section>
