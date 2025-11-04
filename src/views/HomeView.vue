@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import Header from '@/components/Header.vue'
 
 const router = useRouter()
 
@@ -10,6 +11,8 @@ function signOut() {
 </script>
 
 <template>
+  <Header />
+
   <div class="dashboard">
     <aside class="sidebar">
       <h2>Study Buddy</h2>
