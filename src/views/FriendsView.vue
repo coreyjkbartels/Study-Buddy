@@ -1,15 +1,18 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import Header from "@/components/Header.vue";
 
-const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
+const username = ref("");
 const friends = ref([]);
 const requests = ref([]);
-const username = ref("");
+const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
 
 async function fetchFriends() {
   try {
-    const res = await fetch(`${API_BASE}/friends`, { credentials: "include" });
-    if (!res.ok) return;
+    const res = await fetch(`${API_BASE}/friends`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to fetch friends");
     const data = await res.json();
     friends.value = data.friends || [];
   } catch (err) {
@@ -19,15 +22,18 @@ async function fetchFriends() {
 
 async function fetchRequests() {
   try {
-    const res = await fetch(`${API_BASE}/friends/requests`, { credentials: "include" });
-    if (!res.ok) return;
+    const res = await fetch(`${API_BASE}/friends/requests`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to fetch requests");
     const data = await res.json();
-    requests.value = (data.friendRequests || []).map((req) => ({
-      id: req._id,
-      from: req.sender?.[0]?.userName || "unknown",
-      to: req.receiver?.[0]?.userName || "unknown",
-      isAccepted: req.isAccepted,
-    }));
+    const userId = localStorage.getItem("userId");
+    requests.value = (data.friendRequests || [])
+      .filter((r) => !r.isAccepted && r.receiver[0]?._id === userId)
+      .map((r) => ({
+        id: r._id,
+        from: r.sender[0]?.userName || "Unknown User",
+      }));
   } catch (err) {
     console.error(err);
   }
@@ -36,29 +42,33 @@ async function fetchRequests() {
 async function sendRequest() {
   if (!username.value.trim()) return;
   try {
-    const userRes = await fetch(`${API_BASE}/users/by-username/${username.value}`, {
+    const search = await fetch(`${API_BASE}/users?userName=${username.value}`, {
       credentials: "include",
     });
-    if (!userRes.ok) return alert("User not found.");
-    const userData = await userRes.json();
-    const friendId = userData.user?._id;
-    if (!friendId) return alert("User not found.");
+    if (!search.ok) {
+      alert("User not found");
+      return;
+    }
+    const searchData = await search.json();
+    const friendUser = searchData.user || searchData.users?.[0];
+    if (!friendUser) {
+      alert("User not found");
+      return;
+    }
 
     const res = await fetch(`${API_BASE}/friends/requests`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendId }),
+      body: JSON.stringify({ friendId: friendUser._id }),
     });
-    if (!res.ok) return;
-    const data = await res.json();
-    requests.value.push({
-      id: data.friendRequest._id,
-      from: data.friendRequest.sender.userName,
-    });
+    if (!res.ok) throw new Error("Request failed");
+    alert(`Friend request sent to ${friendUser.userName}`);
     username.value = "";
+    fetchRequests();
   } catch (err) {
     console.error(err);
+    alert("Failed to send friend request.");
   }
 }
 
@@ -70,15 +80,12 @@ async function acceptRequest(id) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isAccepted: true }),
     });
-    if (!res.ok) return;
-    const data = await res.json();
-    friends.value.push({
-      id: Date.now(),
-      username: data.friendRequest.sender.userName,
-    });
-    requests.value = requests.value.filter((r) => r.id !== id);
+    if (!res.ok) throw new Error("Failed to accept request");
+    await fetchFriends();
+    await fetchRequests();
   } catch (err) {
     console.error(err);
+    alert("Failed to accept friend request.");
   }
 }
 
@@ -88,7 +95,10 @@ onMounted(() => {
 });
 </script>
 
+
+
 <template>
+  <Header />
   <div class="friends-page">
     <h1>Study Buddies</h1>
 
@@ -100,7 +110,9 @@ onMounted(() => {
     <section class="friends-list">
       <h2>Your Friends ({{ friends.length }})</h2>
       <ul>
-        <li v-for="f in friends" :key="f.id">{{ f.username }}</li>
+        <li v-for="f in friends" :key="f._id || f.id">
+          {{ f.userName || f.username }}
+        </li>
       </ul>
     </section>
 
@@ -117,7 +129,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-:root{
+:root {
   --primary: #6366f1;
   --accent: #1976d2;
   --white: #ffffff;
@@ -125,7 +137,9 @@ onMounted(() => {
   --gap: 1rem;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .friends-page {
   max-width: 600px;
@@ -205,7 +219,6 @@ ul {
   background: linear-gradient(135deg, var(--accent), var(--primary));
   color: var(--white);
   font-weight: 600;
-  background-color: #1976d2;
 }
 
 .requests ul li button,
