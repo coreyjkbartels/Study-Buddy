@@ -9,82 +9,100 @@ const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
 
 async function fetchFriends() {
   try {
-    const res = await fetch(`${API_BASE}/friends`, {
+    const response = await fetch(`${API_BASE}/friends`, {
+      method: "GET",
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
     });
-    if (!res.ok) throw new Error("Failed to fetch friends");
-    const data = await res.json();
-    friends.value = data.friends || [];
-  } catch (err) {
-    console.error(err);
+
+    if (!response.ok) throw new Error(`Failed to fetch friends (${response.status})`);
+
+    const data = await response.json();
+    friends.value = Array.isArray(data.friends) ? data.friends : [];
+  } catch (error) {
+    console.error("Error fetching friends:", error);
   }
 }
 
 async function fetchRequests() {
   try {
-    const res = await fetch(`${API_BASE}/friends/requests`, {
+    const response = await fetch(`${API_BASE}/friends/requests`, {
+      method: "GET",
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
     });
-    if (!res.ok) throw new Error("Failed to fetch requests");
-    const data = await res.json();
+
+    if (!response.ok) throw new Error(`Failed to fetch requests (${response.status})`);
+
+    const data = await response.json();
     const userId = localStorage.getItem("userId");
+
     requests.value = (data.friendRequests || [])
       .filter((r) => !r.isAccepted && r.receiver[0]?._id === userId)
       .map((r) => ({
         id: r._id,
         from: r.sender[0]?.userName || "Unknown User",
       }));
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error fetching friend requests:", error);
   }
 }
 
 async function sendRequest() {
   if (!username.value.trim()) return;
+
   try {
-    const search = await fetch(`${API_BASE}/users?userName=${username.value}`, {
+    const searchResponse = await fetch(`${API_BASE}/users?userName=${username.value}`, {
+      method: "GET",
       credentials: "include",
+      headers: { "Content-Type": "application/json" },
     });
-    if (!search.ok) {
+
+    if (!searchResponse.ok) {
       alert("User not found");
       return;
     }
-    const searchData = await search.json();
+
+    const searchData = await searchResponse.json();
     const friendUser = searchData.user || searchData.users?.[0];
+
     if (!friendUser) {
       alert("User not found");
       return;
     }
 
-    const res = await fetch(`${API_BASE}/friends/requests`, {
+    const response = await fetch(`${API_BASE}/friends/requests/${friendUser._id}`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendId: friendUser._id }),
     });
-    if (!res.ok) throw new Error("Request failed");
+
+    if (!response.ok) throw new Error(`Failed to send friend request (${response.status})`);
+
     alert(`Friend request sent to ${friendUser.userName}`);
     username.value = "";
-    fetchRequests();
-  } catch (err) {
-    console.error(err);
+    await fetchRequests();
+  } catch (error) {
+    console.error("Error sending friend request:", error);
     alert("Failed to send friend request.");
   }
 }
 
 async function acceptRequest(id) {
   try {
-    const res = await fetch(`${API_BASE}/friends/requests/${id}`, {
+    const response = await fetch(`${API_BASE}/friends/requests/${id}`, {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isAccepted: true }),
     });
-    if (!res.ok) throw new Error("Failed to accept request");
+
+    if (!response.ok) throw new Error(`Failed to accept request (${response.status})`);
+
     await fetchFriends();
     await fetchRequests();
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error accepting friend request:", error);
     alert("Failed to accept friend request.");
   }
 }
