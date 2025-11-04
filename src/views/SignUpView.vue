@@ -15,6 +15,7 @@ const errormsg = ref("")
 
 async function Join(event) {
   event.preventDefault()
+  errormsg.value = ""
 
   if (!firstName.value || !lastName.value || !email.value || !username.value || !password.value || !confirmpassword.value) {
     errormsg.value = "Fill out all the fields"
@@ -36,7 +37,7 @@ async function Join(event) {
     email: email.value,
     password: password.value
   }
-  console.log(data)
+  console.log("Sending Data:", data)
 
   const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
 
@@ -57,6 +58,13 @@ async function Join(event) {
     localStorage.setItem('firstName', data.user.firstName)
     localStorage.setItem('lastName', data.user.lastName)
     localStorage.setItem('email', data.user.email)
+    
+    if (data.token) {
+      localStorage.setItem("bearerToken", data.token)
+        console.log("Bearer token stored.")
+    } else {
+      console.warn("No 'token' property found in the registration response.");
+    }
 
     router.push({
       name: 'home'
