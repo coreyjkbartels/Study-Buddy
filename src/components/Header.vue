@@ -4,25 +4,9 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 async function logout() {
-  try {
-    const token = localStorage.getItem('token')
-
-    if (token) {
-      await fetch('http://localhost:3000/user/sign-out', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-    }
-
-    localStorage.removeItem('token')
     router.push('/signin')
-  } catch (error) {
-    console.error('Logout failed:', error)
-  }
 }
+
 </script>
 
 <template>
