@@ -30,6 +30,7 @@ async function logout() {
     <div class="container">
       <h1 class="logo">Study Buddy</h1>
       <nav class="nav">
+        <RouterLink to="/home" class="nav-item">Home</RouterLink>
         <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
         <RouterLink to="/friends" class="nav-item">Friends</RouterLink>
         <button class="signout" @click="logout">Sign Out</button>
