@@ -1,94 +1,102 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import Header from "@/components/Header.vue";
 
-const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
+const username = ref("");
 const friends = ref([]);
 const requests = ref([]);
-const username = ref("");
+const currentUser = ref(null);
+const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
+
+function authHeaders() {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+async function fetchCurrentUser() {
+  try {
+    const response = await fetch(`${API_BASE}/user`, {
+      method: "GET",
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch user");
+    const data = await response.json();
+    currentUser.value = data.user;
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+  }
+}
 
 async function fetchFriends() {
   try {
-    const res = await fetch(`${API_BASE}/friends`, { credentials: "include" });
-    if (!res.ok) return;
-    const data = await res.json();
-    friends.value = data.friends || [];
-  } catch (err) {
-    console.error(err);
+    const response = await fetch(`${API_BASE}/friends`, {
+      method: "GET",
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error(`Failed to fetch friends (${response.status})`);
+    const data = await response.json();
+    friends.value = Array.isArray(data.friends) ? data.friends : [];
+  } catch (error) {
+    console.error("Error fetching friends:", error);
   }
 }
 
 async function fetchRequests() {
   try {
-    const res = await fetch(`${API_BASE}/friends/requests`, { credentials: "include" });
-    if (!res.ok) return;
-    const data = await res.json();
-    requests.value = (data.friendRequests || []).map((req) => ({
-      id: req._id,
-      from: req.sender?.[0]?.userName || "unknown",
-      to: req.receiver?.[0]?.userName || "unknown",
-      isAccepted: req.isAccepted,
-    }));
-  } catch (err) {
-    console.error(err);
+    const response = await fetch(`${API_BASE}/friends/requests`, {
+      method: "GET",
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error(`Failed to fetch requests (${response.status})`);
+    const data = await response.json();
+    const userId = localStorage.getItem("userId");
+
+    requests.value = (data.friendRequests || [])
+      .filter((r) => !r.isAccepted && r.receiver[0]?._id === userId)
+      .map((r) => ({
+        id: r._id,
+        from: r.sender[0]?.username || "Unknown User",
+      }));
+  } catch (error) {
+    console.error("Error fetching friend requests:", error);
   }
 }
 
 async function sendRequest() {
-  if (!username.value.trim()) return;
-  try {
-    const userRes = await fetch(`${API_BASE}/users/by-username/${username.value}`, {
-      credentials: "include",
-    });
-    if (!userRes.ok) return alert("User not found.");
-    const userData = await userRes.json();
-    const friendId = userData.user?._id;
-    if (!friendId) return alert("User not found.");
-
-    const res = await fetch(`${API_BASE}/friends/requests`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendId }),
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    requests.value.push({
-      id: data.friendRequest._id,
-      from: data.friendRequest.sender.userName,
-    });
-    username.value = "";
-  } catch (err) {
-    console.error(err);
-  }
+  alert("User search is not available in this version of the API.");
 }
 
 async function acceptRequest(id) {
   try {
-    const res = await fetch(`${API_BASE}/friends/requests/${id}`, {
+    const response = await fetch(`${API_BASE}/friends/requests/${id}`, {
       method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({ isAccepted: true }),
     });
-    if (!res.ok) return;
-    const data = await res.json();
-    friends.value.push({
-      id: Date.now(),
-      username: data.friendRequest.sender.userName,
-    });
-    requests.value = requests.value.filter((r) => r.id !== id);
-  } catch (err) {
-    console.error(err);
+
+    if (!response.ok) throw new Error(`Failed to accept request (${response.status})`);
+
+    await fetchFriends();
+    await fetchRequests();
+  } catch (error) {
+    console.error("Error accepting friend request:", error);
+    alert("Failed to accept friend request.");
   }
 }
 
 onMounted(() => {
+  fetchCurrentUser();
   fetchFriends();
   fetchRequests();
 });
 </script>
 
+
 <template>
+  <Header />
   <div class="friends-page">
     <h1>Study Buddies</h1>
 
@@ -100,7 +108,9 @@ onMounted(() => {
     <section class="friends-list">
       <h2>Your Friends ({{ friends.length }})</h2>
       <ul>
-        <li v-for="f in friends" :key="f.id">{{ f.username }}</li>
+        <li v-for="f in friends" :key="f._id || f.id">
+          {{ f.username }}
+        </li>
       </ul>
     </section>
 
@@ -117,7 +127,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-:root{
+:root {
   --primary: #6366f1;
   --accent: #1976d2;
   --white: #ffffff;
@@ -125,7 +135,9 @@ onMounted(() => {
   --gap: 1rem;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .friends-page {
   max-width: 600px;
@@ -205,7 +217,6 @@ ul {
   background: linear-gradient(135deg, var(--accent), var(--primary));
   color: var(--white);
   font-weight: 600;
-  background-color: #1976d2;
 }
 
 .requests ul li button,

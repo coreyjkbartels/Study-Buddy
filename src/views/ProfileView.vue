@@ -3,6 +3,8 @@
 import { useRouter } from 'vue-router'
 import { useTemplateRef, ref, onMounted } from 'vue'
 import Modal from '../components/Modal.vue'
+import Header from '@/components/Header.vue'
+
 
 const router = useRouter()
 const modal = useTemplateRef('name-modal')
@@ -121,6 +123,7 @@ function save(e) {
 </script>
 
 <template>
+  <Header />
   <div class="main-container">
     <div class="header-container">
       <div @click="router.back()" class="back-button"><img src="/public/back-button.png" alt="" class="back-img"></div>
