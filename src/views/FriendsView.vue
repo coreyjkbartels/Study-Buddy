@@ -65,7 +65,6 @@ async function fetchRequests() {
   }
 }
 
-// Since we can’t search users by username, disable the search feature for now
 async function sendRequest() {
   alert("User search is not available in this version of the API.");
 }
