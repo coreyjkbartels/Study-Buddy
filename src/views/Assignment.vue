@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Modal from '../components/Modal.vue'
+import Header from '@/components/Header.vue'
 
 const router = useRouter()
 const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app"
@@ -105,6 +106,7 @@ onMounted(fetchAssignments);
 </script>
 
 <template>
+<Header></Header>
   <div class="dashboard">
     <aside class="sidebar">
       <h2>Study Buddy</h2>
@@ -112,6 +114,7 @@ onMounted(fetchAssignments);
         <RouterLink to="/home" class="nav-item">Dashboard</RouterLink>
         <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
         <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
+        <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
         <RouterLink to="/assignments" class="nav-item">Assignments</RouterLink>
       </nav>
       <button class="signout" @click="signOut">Sign Out</button>
