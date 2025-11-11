@@ -46,6 +46,7 @@ h1 {
   border-radius: 6px;
   transition: background 0.2s ease;
 }
+
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
@@ -65,6 +66,7 @@ h1 {
   text-decoration: none;
   transition: background 0.2s ease;
 }
+
 .temp-btn:hover {
   background: #e3f2fd;
 }

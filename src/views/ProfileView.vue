@@ -107,13 +107,18 @@ async function editUser() {
 
 
 function cancel(e) {
-    modal.value.close(e)
+  modal.value.close(e)
 }
 
 function save(e) {
+<<<<<<< HEAD
     e.preventDefault()
     editUser()
     modal.value.close(e)
+=======
+
+  modal.value.close(e)
+>>>>>>> origin/dev
 }
 
 
@@ -167,6 +172,7 @@ function save(e) {
 
   </div>
   <Modal ref="name-modal">
+<<<<<<< HEAD
             <template #header>
                 <h1 class="primary-heading">Edit Profile</h1>
             </template>
@@ -217,12 +223,29 @@ function save(e) {
                 <button @click.stop="save">Save</button>
             </template>
         </Modal>
+=======
+    <template #header>
+      <h1 class="primary-heading">Edit Profile</h1>
+    </template>
+    <template #main>
+      <div class="firstLastModal">
+        <input type="text" v-model="newFirstName" id="firstName" name="firstName" placeholder="New First Name" />
+        <input type="text" v-model="newLastName" id="lastName" name="lastName" placeholder="New Last Name" />
+      </div>
+      <div class="user-info-container">
+        <input type="email" v-model="newEmail" id="userEmail" name="userEmail" placeholder="New Email" required />
+        <input type="text" v-model="newUsername" id="username" name="username" placeholder="New Username" />
+      </div>
+    </template>
+    <template #footer>
+      <button @click.stop="cancel">Cancel</button>
+      <button @click.stop="save">Save</button>
+    </template>
+  </Modal>
+>>>>>>> origin/dev
 </template>
 
 <style scoped>
-
-
-
 .user-background-wrapper {
   display: flex;
   flex-direction: column;
@@ -245,6 +268,7 @@ function save(e) {
   padding-top: 1rem;
   gap: 3rem;
 }
+
 .user-name-container {
   width: 100%;
   height: 150px;
@@ -256,6 +280,7 @@ function save(e) {
 
 
 }
+
 .input-name-wrapper {
   display: flex;
   flex-direction: column;
@@ -279,6 +304,7 @@ function save(e) {
   height: 45px;
   width: 700px;
 }
+
 .user-info-container {
   width: 800px;
   height: 450px;
@@ -292,7 +318,7 @@ function save(e) {
 .header-container {
   width: 100vw;
   height: 80px;
- background: #1976d2;
+  background: #1976d2;
   position: absolute;
   top: 0;
   display: flex;
@@ -384,44 +410,44 @@ function save(e) {
 
 /* modal editing */
 .modal .firstLastModal {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal .user-info-container {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal input {
-    margin: 0.7rem 0.5rem;
-    height: 50px;
-    color: white;
-    outline: none;
-    border: 2px solid grey;
+  margin: 0.7rem 0.5rem;
+  height: 50px;
+  color: white;
+  outline: none;
+  border: 2px solid grey;
 
-    background: rgba(70, 48, 48, 0.274);
-    box-sizing: border-box;
-    padding-left: 1rem;
-    font-size: 15px;
+  background: rgba(70, 48, 48, 0.274);
+  box-sizing: border-box;
+  padding-left: 1rem;
+  font-size: 15px;
 }
 
 /* Modal button styling */
 .modal button {
-    width: 100px;
-    height: 40px;
-    border-radius: 10px;
-    color: white;
-    font-size: 15px;
+  width: 100px;
+  height: 40px;
+  border-radius: 10px;
+  color: white;
+  font-size: 15px;
 
-    background: transparent;
-    backdrop-filter: blur(5px);
-    border: 2px solid grey;
-    cursor: pointer;
+  background: transparent;
+  backdrop-filter: blur(5px);
+  border: 2px solid grey;
+  cursor: pointer;
 }
 
 .modal button:hover {
-    background: rgba(174, 40, 40, 0.274);
+  background: rgba(174, 40, 40, 0.274);
 }
 
 .primary-heading {

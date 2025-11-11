@@ -2,11 +2,28 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const API_BASE = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app'
 
 async function logout() {
+  try {
+    const token = localStorage.getItem('token')
+    
+    if (token) {
+      await fetch(`${API_BASE}/user/sign-out`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Logout error:', error)
+  } finally {
+    localStorage.clear()
     router.push('/signin')
+  }
 }
-
 </script>
 
 <template>
