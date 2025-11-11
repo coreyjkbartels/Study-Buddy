@@ -58,12 +58,7 @@ async function signIn(event) {
 </script>
 
 <template>
-  <Header>
-    <nav>
-      <RouterLink to="/join">Join</RouterLink>
-      <RouterLink to="/">Home</RouterLink>
-    </nav>
-  </Header>
+
 
   <main>
     <div class="wrapper">
@@ -81,7 +76,7 @@ async function signIn(event) {
         </div>
         <button class="btn" type="submit">Sign In</button>
         <div class="join-link">
-          <p>Do not have a account? <RouterLink to="/join">Join</RouterLink></p>
+          <p>Do not have a account? <RouterLink to="/signup">Join</RouterLink></p>
         </div>
       </form>
 
