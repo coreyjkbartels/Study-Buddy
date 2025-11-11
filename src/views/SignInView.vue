@@ -20,6 +20,8 @@ async function signIn(event) {
     email: email.value,
     password: password.value
   }
+    
+  const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/sign-in'
 
   const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/sign-in'
 
