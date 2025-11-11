@@ -21,6 +21,7 @@ function signOut() {
         <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
         <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
         <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
+        <RouterLink to="/assignment" class="nav-item">Assignments</RouterLink>
       </nav>
       <button class="signout" @click="signOut">Sign Out</button>
     </aside>

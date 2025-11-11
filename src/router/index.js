@@ -9,6 +9,7 @@ import FriendsView from '../views/FriendsView.vue'
 import MessagesView from '../views/MessagesView.vue'
 import Header from '../components/Header.vue'
 import GroupchatView from '../views/GroupchatView.vue'
+import Assignment from '../views/Assignment.vue'
 
 const routes = [
   { path: '/', name: 'splash', component: SplashView },
@@ -20,7 +21,8 @@ const routes = [
   { path: '/messages', name: 'messages', component: MessagesView },
   { path: '/messages/:friendId', name: 'messages-friend', component: MessagesView },
   { path: '/groupchat', name: 'groupchat', component: GroupchatView },
-  { path: '/header', name: 'header', component: Header }
+  { path: '/header', name: 'header', component: Header },
+  { path: '/assignment', name: 'assignment', component: Assignment }
 ]
 
 const router = createRouter({
