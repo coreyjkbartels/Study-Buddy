@@ -1,24 +1,123 @@
 <script setup>
 
 import { useRouter } from 'vue-router'
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, ref, onMounted } from 'vue'
 import Modal from '../components/Modal.vue'
 import Header from '@/components/Header.vue'
 
 
+const router = useRouter()
 const modal = useTemplateRef('name-modal')
 
+onMounted(() => {
+  grabData()
+})
 
-const router = useRouter()
+const firstName = ref()
+const lastName = ref()
+const username = ref()
+const email = ref()
+
+
+const newFirstName = ref()
+const newLastName = ref()
+const newUsername = ref()
+const newEmail = ref()
+const newPassword = ref()
+
+
+
+
+async function grabData() {
+  let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
+  const userToken = localStorage.getItem('bearerToken');
+
+
+
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type' : 'application/json',
+      'Authorization' : `Bearer ${userToken}`
+    }
+
+  }
+
+
+  const response = await fetch(url, options)
+
+  if(response.status === 200) {
+    const data = await response.json()
+
+    firstName.value = data.user.firstName
+    lastName.value = data.user.lastName
+    username.value = data.user.username
+    email.value = data.user.email
+
+    console.log(data.user)
+  } else {
+    console.log("sum ting wong", response.status)
+  }
+}
+
+async function editUser() {
+
+
+
+    const data = {
+      firstName: newFirstName.value || firstName.value,
+      lastName: newLastName.value || lastName.value,
+      username: newUsername.value || username.value,
+      email: newEmail.value || email.value,
+      password: newPassword.value
+    }
+
+    let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
+
+    const options = {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : `Bearer ${localStorage.getItem('bearerToken')}`,
+        },
+        body: JSON.stringify(data),
+    }
+
+    const response = await fetch(url, options)
+
+    if (response.status === 200) {
+
+      localStorage.setItem('firstName', data.firstName)
+      localStorage.setItem('lastName', data.lastName)
+      localStorage.setItem('username', data.username)
+      localStorage.setItem('email', data.email)
+      grabData()
+      console.log('firstName')
+
+    } else {
+        console.log('error')
+        console.log(response.status)
+    }
+}
+
+
+
+
+
+
 
 function cancel(e) {
   modal.value.close(e)
 }
 
 function save(e) {
-
-  modal.value.close(e)
+    e.preventDefault()
+    editUser()
+    modal.value.close(e)
 }
+
+
+
 
 
 </script>
@@ -43,21 +142,21 @@ function save(e) {
         <div class="user-name-container">
           <div class="input-name-wrapper">
             <span class="input-header">First Name</span>
-            <input type="text" class="name-input">
+            <span class="data-text">{{ firstName }}</span>
           </div>
           <div class="input-name-wrapper">
             <span class="input-header">Last Name</span>
-            <input type="text" class="name-input">
+            <span class="data-text">{{ lastName }}</span>
           </div>
         </div>
         <div class="user-background-container">
           <div class="user-background-wrapper">
             <span class="input-header">Username</span>
-            <input type="text" class="input-background">
+            <span class="data-text large">{{ username }}</span>
           </div>
           <div class="user-background-wrapper">
             <span class="input-header">Email</span>
-            <input type="text" class="input-background">
+            <span class="data-text large">{{ email }}</span>
           </div>
         </div>
 
@@ -68,24 +167,56 @@ function save(e) {
 
   </div>
   <Modal ref="name-modal">
-    <template #header>
-      <h1 class="primary-heading">Edit Profile</h1>
-    </template>
-    <template #main>
-      <div class="firstLastModal">
-        <input type="text" v-model="newFirstName" id="firstName" name="firstName" placeholder="New First Name" />
-        <input type="text" v-model="newLastName" id="lastName" name="lastName" placeholder="New Last Name" />
-      </div>
-      <div class="user-info-container">
-        <input type="email" v-model="newEmail" id="userEmail" name="userEmail" placeholder="New Email" required />
-        <input type="text" v-model="newUsername" id="username" name="username" placeholder="New Username" />
-      </div>
-    </template>
-    <template #footer>
-      <button @click.stop="cancel">Cancel</button>
-      <button @click.stop="save">Save</button>
-    </template>
-  </Modal>
+            <template #header>
+                <h1 class="primary-heading">Edit Profile</h1>
+            </template>
+            <template #main>
+                <div class="firstLastModal">
+                    <input
+                        type="text"
+                        v-model="newFirstName"
+                        id="firstName"
+                        name="firstName"
+                        placeholder="New First Name"
+                    />
+                    <input
+                        type="text"
+                        v-model="newLastName"
+                        id="lastName"
+                        name="lastName"
+                        placeholder="New Last Name"
+                    />
+                </div>
+                <div class="user-info-container">
+                    <input
+                        type="email"
+                        v-model="newEmail"
+                        id="userEmail"
+                        name="userEmail"
+                        placeholder="New Email"
+                        required
+                    />
+                    <input
+                        type="text"
+                        v-model="newUsername"
+                        id="username"
+                        name="username"
+                        placeholder="New Username"
+                    />
+                    <input
+                        type="text"
+                        v-model="newPassword"
+                        id="password"
+                        name="password"
+                        placeholder="New Password"
+                    />
+                </div>
+            </template>
+            <template #footer>
+                <button @click.stop="cancel">Cancel</button>
+                <button @click.stop="save">Save</button>
+            </template>
+        </Modal>
 </template>
 
 <style scoped>
@@ -129,11 +260,16 @@ function save(e) {
   flex-direction: column;
 }
 
-.name-input {
+.data-text {
   width: 325px;
-  height: 45px;
-
-
+  height: 60px;
+  border-radius: 20px;
+  background: rgba(230, 234, 236, 0.192);
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding-left: 2rem;
+  font-size: 20px;
 
 }
 
@@ -236,6 +372,13 @@ function save(e) {
 
 
 
+
+
+}
+
+
+.large {
+  width: 700px;
 }
 
 
