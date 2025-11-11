@@ -20,6 +20,7 @@ function signOut() {
         <RouterLink to="/home" class="nav-item">Dashboard</RouterLink>
         <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
         <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
+        <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
       </nav>
       <button class="signout" @click="signOut">Sign Out</button>
     </aside>
@@ -37,7 +38,7 @@ function signOut() {
 :root {
   --primary: #6366f1;
   --accent: #1976d2;
-  --white:  #ffffff;
+  --white: #ffffff;
   --text: #0b1220;
   --radius: 12px;
   --gap: 1.25rem;
@@ -46,7 +47,8 @@ function signOut() {
 .dashboard {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 260px 1fr 340px; /* left / center / right */
+  grid-template-columns: 260px 1fr 340px;
+  /* left / center / right */
   gap: var(--gap);
   background: var(--white);
   color: var(--text);
@@ -65,7 +67,7 @@ function signOut() {
   flex-direction: column;
   align-items: stretch;
   gap: 1rem;
-  box-shadow: 0 8px 30px rgba(25,118,210,0.10);
+  box-shadow: 0 8px 30px rgba(25, 118, 210, 0.10);
 }
 
 .sidebar h2 {
@@ -92,7 +94,11 @@ function signOut() {
   transition: background .18s ease, transform .12s ease;
   text-align: left;
 }
-.nav-item:hover { background: rgba(255,255,255,0.12); transform: translateX(4px); }
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+}
 
 .signout {
   margin-top: auto;
@@ -104,6 +110,7 @@ function signOut() {
   font-weight: 700;
   cursor: pointer;
 }
+
 .signout:hover {
   background: linear-gradient(180deg, #6366f1, #1976d2);
   color: var(--white);
@@ -122,8 +129,8 @@ header {
   background: var(--white);
   border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 8px 24px rgba(99,102,241,0.06);
-  border: 1px solid rgba(25,118,210,0.06);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(25, 118, 210, 0.06);
 }
 
 header h1 {
@@ -132,6 +139,7 @@ header h1 {
   font-size: 1.4rem;
   font-weight: 800;
 }
+
 header p {
   margin: 0;
   color: #263044;

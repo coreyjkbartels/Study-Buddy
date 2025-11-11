@@ -51,17 +51,22 @@ async function Join(event) {
 
   let response = await fetch(url, options)
   console.log("Response:", response.status);
+
   if (response.status === 201) {
     const data = await response.json()
-    console.log(data.status, response.text())
+    console.log("Registration successful:", data)
+
+    localStorage.clear()
+
     localStorage.setItem("username", data.user.username)
     localStorage.setItem('firstName', data.user.firstName)
     localStorage.setItem('lastName', data.user.lastName)
     localStorage.setItem('email', data.user.email)
-    
+    localStorage.setItem('userId', data.user._id)
+
     if (data.token) {
-      localStorage.setItem("bearerToken", data.token)
-        console.log("Bearer token stored.")
+      localStorage.setItem("token", data.token)
+      console.log("Token stored successfully")
     } else {
       console.warn("No 'token' property found in the registration response.");
     }
@@ -71,24 +76,24 @@ async function Join(event) {
     })
   }
   else if (response.status === 400) {
-    errormsg.value = "Invalid email or password"
-    console.log('hi')
+    const errorData = await response.json()
+    console.log("Error data:", errorData)
+
+    if (errorData.errors) {
+      const firstError = Object.values(errorData.errors)[0]
+      errormsg.value = firstError.message || "Invalid input"
+    } else {
+      errormsg.value = "Invalid email or password"
+    }
   }
   else if (response.status === 500) {
     errormsg.value = "Internal Server Error"
-    console.log(data.status, response.text())
+    console.log("Server error")
   }
 }
 </script>
 
 <template>
-  <Header>
-    <nav>
-      <RouterLink to="/signin">Sign In</RouterLink>
-      <RouterLink to="/">Home</RouterLink>
-    </nav>
-  </Header>
-
   <main>
     <div class="wrapper">
       <form @submit.prevent="Join">
@@ -114,7 +119,8 @@ async function Join(event) {
         </div>
         <button class="btn" type="submit">Join</button>
         <div class="join-link">
-          <p>Already have a account? <RouterLink to="/signin">Sign in</RouterLink></p>
+          <p>Already have a account? <RouterLink to="/signin">Sign in</RouterLink>
+          </p>
         </div>
       </form>
     </div>
@@ -151,7 +157,8 @@ form {
   gap: 1.25rem;
 }
 
-h1, h2 {
+h1,
+h2 {
   text-align: center;
   color: #1f2937;
   font-weight: 600;
@@ -198,6 +205,16 @@ button[type="submit"]:hover {
   background-color: #4338ca;
 }
 
+.err {
+  background: #fee;
+  color: #dc2626;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  border: 1px solid #fca5a5;
+}
+
 p {
   text-align: center;
   font-size: 0.875rem;
@@ -214,4 +231,3 @@ a:hover {
   text-decoration: underline;
 }
 </style>
-

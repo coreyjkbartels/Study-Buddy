@@ -11,7 +11,7 @@ const errormsg = ref("")
 async function signIn(event) {
   event.preventDefault()
 
-  if(!email.value|| !password.value){
+  if (!email.value || !password.value) {
     errormsg.value = "Please enter your email and password."
     return
   }
@@ -20,7 +20,7 @@ async function signIn(event) {
     email: email.value,
     password: password.value
   }
-    
+
   const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/sign-in'
 
   const options = {
@@ -50,20 +50,15 @@ async function signIn(event) {
     errormsg.value = "Internal Server Error"
     console.log("Internal Server Error")
   }
-  else{
-    console.log("other error",response.status,await response.text())
+  else {
+    console.log("other error", response.status, await response.text())
   }
 }
 
 </script>
 
 <template>
-  <Header>
-    <nav>
-      <RouterLink to="/join">Join</RouterLink>
-      <RouterLink to="/">Home</RouterLink>
-    </nav>
-  </Header>
+
 
   <main>
     <div class="wrapper">
@@ -71,17 +66,18 @@ async function signIn(event) {
         <h1>Sign in</h1>
         <p v-if="errormsg" class="err">{{ errormsg }}</p>
         <div class="input-box">
-          <input type="email" v-model = "email" placeholder="Email" required>
+          <input type="email" v-model="email" placeholder="Email" required>
         </div>
         <div class="input-box">
-          <input type="password" v-model = "password" placeholder="Password" required>
+          <input type="password" v-model="password" placeholder="Password" required>
         </div>
         <div class="remember-forgot">
           <label><input type="checkbox">Remember me</label>
         </div>
         <button class="btn" type="submit">Sign In</button>
         <div class="join-link">
-          <p>Do not have a account? <RouterLink to="/join">Join</RouterLink></p>
+          <p>Do not have a account? <RouterLink to="/signup">Join</RouterLink>
+          </p>
         </div>
       </form>
 
@@ -118,7 +114,8 @@ form {
   gap: 1.25rem;
 }
 
-h1, h2 {
+h1,
+h2 {
   text-align: center;
   color: #1f2937;
   font-weight: 600;

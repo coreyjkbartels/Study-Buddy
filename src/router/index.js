@@ -6,6 +6,7 @@ import SignInView from '../views/SignInView.vue'
 import SignUpView from '../views/SignUpView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import FriendsView from '../views/FriendsView.vue'
+import MessagesView from '../views/MessagesView.vue'
 import Header from '../components/Header.vue'
 
 const routes = [
@@ -15,9 +16,10 @@ const routes = [
   { path: '/signup', name: 'signup', component: SignUpView },
   { path: '/profile', name: 'profile', component: ProfileView },
   { path: '/friends', name: 'friends', component: FriendsView },
+  { path: '/messages', name: 'messages', component: MessagesView },
+  { path: '/messages/:friendId', name: 'messages-friend', component: MessagesView },
   { path: '/header', name: 'header', component: Header }
 ]
-
 
 const router = createRouter({
   history: createWebHistory(),
