@@ -30,7 +30,8 @@ const newPassword = ref()
 
 async function grabData() {
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
-  const userToken = localStorage.getItem('bearerToken');
+  const userToken = localStorage.getItem('token');
+  console.log(userToken);
 
 
 
@@ -78,7 +79,7 @@ async function editUser() {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization' : `Bearer ${localStorage.getItem('bearerToken')}`,
+            'Authorization' : `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify(data),
     }
@@ -125,11 +126,9 @@ function save(e) {
 <template>
   <Header />
   <div class="main-container">
-    <div class="header-container">
-      <div @click="router.back()" class="back-button"><img src="/public/back-button.png" alt="" class="back-img"></div>
-    </div>
     <div class="form-container">
       <div class="form-header-container">
+        <button class="back-button" @click="router.back()">Go Back</button>
         <span class="form-header">User Info</span>
         <div class="edit-button-container">
           <button class="edit-button" @click="modal.open"> Edit </button>
@@ -233,6 +232,7 @@ function save(e) {
 
 .input-header {
   font-size: 17px;
+  color: white;
 }
 
 
@@ -251,7 +251,7 @@ function save(e) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-inline: 3rem;
+
 
 
 
@@ -265,11 +265,11 @@ function save(e) {
   width: 325px;
   height: 60px;
   border-radius: 20px;
-  background: rgba(230, 234, 236, 0.192);
+  background: rgba(230, 234, 236, 0.412);
   display: flex;
   align-items: center;
   justify-content: left;
-  padding-left: 2rem;
+  padding-left: 1rem;
   font-size: 20px;
 
 }
@@ -280,7 +280,7 @@ function save(e) {
   width: 700px;
 }
 .user-info-container {
-  width: 800px;
+  width: 700px;
   height: 450px;
 
 
@@ -307,57 +307,68 @@ function save(e) {
 
 }
 
-.back-button {
-  width: 50px;
-  height: 50px;
 
-  margin-left: 2rem;
-  cursor: pointer;
-}
-
-.back-button:hover {
+button:hover {
   transform: scale(1.1);
 }
 
 .form-header-container {
   height: 100px;
+  width: 700px;
   position: relative;
 
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+
+
 
 
 }
 
-.edit-button-container {
-  position: absolute;
 
-  right: 50px;
+
+.back-button {
+  width: 60px;
+  height: 40px;
+  border: none;
+  background: rgba(233, 229, 229, 0.419);
+  margin: 0;
+  border-radius: 10px;
+  cursor: pointer;
 }
+
 
 .edit-button {
-  width: 70px;
-  height: 30px;
+  width: 60px;
+  height: 40px;
   border: none;
-  font-size: 15px;
+
+  background: rgba(233, 229, 229, 0.419);
+  border-radius: 10px;
   cursor: pointer;
+
 
 }
 
 
 
 .form-header {
-  font-size: 30px;
+  font-size: 35px;
+  color: rgba(255, 255, 255, 0.75);
+  padding-right: 1rem;
 }
 
 .form-container {
   width: 800px;
   height: 600px;
-  background: rgb(173, 173, 173);
+background: linear-gradient(180deg, #6366f1 0%, #1976d2 100%);
+
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 2rem;
 
 
 }
@@ -366,8 +377,8 @@ function save(e) {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: rgb(229, 229, 229);
+  height: calc(100vh - 80px);
+  background: white;
   position: relative;
 
 
@@ -400,7 +411,7 @@ function save(e) {
     outline: none;
     border: 2px solid grey;
 
-    background: rgba(70, 48, 48, 0.274);
+    background: rgba(233, 233, 233, 0.506);
     box-sizing: border-box;
     padding-left: 1rem;
     font-size: 15px;
