@@ -42,7 +42,7 @@ function close() {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.709);
+    background-color: rgba(0, 0, 0, 0.575);
 
     backdrop-filter: blur(10px);
     display: flex;
@@ -53,7 +53,7 @@ function close() {
 .modal {
     display: flex;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.463);
+    background: rgba(255, 255, 255, 0.449);
     min-width: 500px;
 
 
