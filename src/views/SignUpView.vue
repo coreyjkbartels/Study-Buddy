@@ -51,19 +51,19 @@ async function Join(event) {
 
   let response = await fetch(url, options)
   console.log("Response:", response.status);
-  
+
   if (response.status === 201) {
     const data = await response.json()
     console.log("Registration successful:", data)
-    
+
     localStorage.clear()
-    
+
     localStorage.setItem("username", data.user.username)
     localStorage.setItem('firstName', data.user.firstName)
     localStorage.setItem('lastName', data.user.lastName)
     localStorage.setItem('email', data.user.email)
     localStorage.setItem('userId', data.user._id)
-    
+
     if (data.token) {
       localStorage.setItem("token", data.token)
       console.log("Token stored successfully")
@@ -78,7 +78,7 @@ async function Join(event) {
   else if (response.status === 400) {
     const errorData = await response.json()
     console.log("Error data:", errorData)
-    
+
     if (errorData.errors) {
       const firstError = Object.values(errorData.errors)[0]
       errormsg.value = firstError.message || "Invalid input"
@@ -119,7 +119,8 @@ async function Join(event) {
         </div>
         <button class="btn" type="submit">Join</button>
         <div class="join-link">
-          <p>Already have a account? <RouterLink to="/signin">Sign in</RouterLink></p>
+          <p>Already have a account? <RouterLink to="/signin">Sign in</RouterLink>
+          </p>
         </div>
       </form>
     </div>
@@ -156,7 +157,8 @@ form {
   gap: 1.25rem;
 }
 
-h1, h2 {
+h1,
+h2 {
   text-align: center;
   color: #1f2937;
   font-weight: 600;

@@ -26,7 +26,7 @@ async function fetchCurrentUser() {
       method: "GET",
       headers: authHeaders(),
     });
-    
+
     if (!res.ok) {
       if (res.status === 400 || res.status === 401) {
         alert('Your session has expired. Please log in again.');
@@ -36,7 +36,7 @@ async function fetchCurrentUser() {
       }
       return;
     }
-    
+
     const data = await res.json();
     currentUser.value = data.user;
     localStorage.setItem("userId", data.user._id);
@@ -52,15 +52,15 @@ async function fetchFriends() {
       method: "GET",
       headers: authHeaders(),
     });
-    
+
     if (!res.ok) {
       console.error('Friends fetch failed:', res.status);
       return;
     }
-    
+
     const data = await res.json();
     const friendsList = data.friends || [];
-    
+
     if (friendsList.length > 0) {
       const friendsWithUsernames = await Promise.all(
         friendsList.map(async (f) => {
@@ -69,7 +69,7 @@ async function fetchFriends() {
               method: "GET",
               headers: authHeaders(),
             });
-            
+
             if (userRes.ok) {
               const userData = await userRes.json();
               return {
@@ -100,15 +100,15 @@ async function fetchRequests() {
       method: "GET",
       headers: authHeaders(),
     });
-    
+
     if (!res.ok) {
       console.error('Requests fetch failed:', res.status);
       return;
     }
-    
+
     const data = await res.json();
     const userId = localStorage.getItem("userId");
-    
+
     requests.value = data
       .filter((r) => !r.isAccepted && r.receiver?.[0]?._id === userId)
       .map((r) => ({
@@ -127,10 +127,10 @@ async function searchUsers() {
     searchResults.value = [];
     return;
   }
-  
+
   isSearching.value = true;
   errorMessage.value = "";
-  
+
   try {
     const res = await fetch(
       `${API_BASE}/users?q=${encodeURIComponent(searchTerm.value)}`,
@@ -139,15 +139,15 @@ async function searchUsers() {
         headers: authHeaders(),
       }
     );
-    
+
     if (!res.ok) {
       errorMessage.value = "Search failed. Please try again.";
       searchResults.value = [];
       return;
     }
-    
+
     const users = await res.json();
-    
+
     const friendIds = friends.value.map(f => f.friendId);
     searchResults.value = users.filter(
       (u) => u._id !== currentUser.value?._id && !friendIds.includes(u._id)
@@ -167,17 +167,17 @@ async function sendRequest(friendId) {
       method: "POST",
       headers: authHeaders(),
     });
-    
+
     if (!res.ok) {
       const errorData = await res.json();
       errorMessage.value = errorData.Error || "Failed to send friend request";
       return;
     }
-    
+
     searchResults.value = searchResults.value.filter(u => u._id !== friendId);
     searchTerm.value = "";
     errorMessage.value = "";
-    
+
     alert("Friend request sent!");
   } catch (err) {
     console.error('sendRequest error:', err);
@@ -192,12 +192,12 @@ async function acceptRequest(id) {
       headers: authHeaders(),
       body: JSON.stringify({ isAccepted: true }),
     });
-    
+
     if (!res.ok) {
       errorMessage.value = "Failed to accept request";
       return;
     }
-    
+
     errorMessage.value = "";
     await Promise.all([fetchFriends(), fetchRequests()]);
     alert("Friend request accepted!");
@@ -213,12 +213,12 @@ async function declineRequest(id) {
       method: "DELETE",
       headers: authHeaders(),
     });
-    
+
     if (!res.ok) {
       errorMessage.value = "Failed to decline request";
       return;
     }
-    
+
     errorMessage.value = "";
     await fetchRequests();
   } catch (err) {
@@ -244,12 +244,7 @@ onMounted(() => {
     </div>
 
     <section class="add-friend">
-      <input
-        v-model="searchTerm"
-        @keyup.enter="searchUsers"
-        placeholder="Enter username..."
-        :disabled="isSearching"
-      />
+      <input v-model="searchTerm" @keyup.enter="searchUsers" placeholder="Enter username..." :disabled="isSearching" />
       <button @click="searchUsers" :disabled="isSearching">
         {{ isSearching ? 'Searching...' : 'Search' }}
       </button>
@@ -475,12 +470,15 @@ h2 {
     margin: 1rem;
     padding: 1rem;
   }
+
   .add-friend {
     flex-direction: column;
   }
+
   .add-friend button {
     width: 100%;
   }
+
   .button-group {
     flex-direction: column;
     width: 100px;

@@ -294,12 +294,8 @@ onUnmounted(() => {
         </div>
 
         <ul v-else class="friends-list">
-          <li
-            v-for="f in friends"
-            :key="f.friendId"
-            @click="selectFriend(f)"
-            :class="{ active: selectedFriend?.friendId === f.friendId }"
-          >
+          <li v-for="f in friends" :key="f.friendId" @click="selectFriend(f)"
+            :class="{ active: selectedFriend?.friendId === f.friendId }">
             {{ f.username }}
           </li>
         </ul>
@@ -319,10 +315,7 @@ onUnmounted(() => {
             {{ errorMessage }}
           </div>
 
-          <div
-            ref="messagesContainer"
-            class="messages-list"
-          >
+          <div ref="messagesContainer" class="messages-list">
             <div v-if="isLoading" class="loading-indicator">
               Loading messages...
             </div>
@@ -332,15 +325,11 @@ onUnmounted(() => {
             </div>
 
             <div v-else class="messages-wrapper">
-              <div
-                v-for="(msg, index) in messages"
-                :key="`${msg.sender}-${msg.content}-${index}`"
-                class="message"
+              <div v-for="(msg, index) in messages" :key="`${msg.sender}-${msg.content}-${index}`" class="message"
                 :class="{
                   own: isOwnMessage(msg),
                   other: !isOwnMessage(msg)
-                }"
-              >
+                }">
                 <div class="message-content">
                   {{ msg.content }}
                 </div>
@@ -349,12 +338,8 @@ onUnmounted(() => {
           </div>
 
           <div class="message-input-container">
-            <input
-              v-model="newMessage"
-              @keyup.enter="sendMessage"
-              placeholder="Type a message..."
-              class="message-input"
-            />
+            <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..."
+              class="message-input" />
             <button @click="sendMessage" class="send-button">
               Send
             </button>
@@ -382,7 +367,7 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.messages-page {  
+.messages-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
