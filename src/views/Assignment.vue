@@ -106,20 +106,8 @@ onMounted(fetchAssignments);
 </script>
 
 <template>
-<Header></Header>
+<!-- <Header /> -->
   <div class="dashboard">
-    <aside class="sidebar">
-      <h2>Study Buddy</h2>
-      <nav>
-        <RouterLink to="/home" class="nav-item">Dashboard</RouterLink>
-        <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
-        <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
-        <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
-        <RouterLink to="/assignments" class="nav-item">Assignments</RouterLink>
-      </nav>
-      <button class="signout" @click="signOut">Sign Out</button>
-    </aside>
-
     <main class="main-content">
       <header>
         <div class="header-content">
@@ -245,62 +233,7 @@ onMounted(fetchAssignments);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   padding: 1.25rem;
   box-sizing: border-box;
-}
-
-.sidebar {
-  grid-column: 1 / 2;
-  background: linear-gradient(180deg, #6366f1 0%, #1976d2 100%);
-  color: var(--white);
-  padding: 1.25rem;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 1rem;
-  box-shadow: 0 8px 30px rgba(25,118,210,0.10);
-  height: calc(100vh - 2.5rem);
-  position: sticky;
-  top: 1.25rem;
-}
-
-.sidebar h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  text-align: left;
-}
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.nav-item {
-  display: inline-block;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  color: var(--white);
-  text-decoration: none;
-  font-weight: 600;
-  transition: background .18s ease, transform .12s ease;
-  text-align: left;
-}
-.nav-item:hover { background: rgba(255,255,255,0.12); transform: translateX(4px); }
-.router-link-exact-active {
-  background: rgba(255,255,255,0.2);
-}
-
-.signout {
-  margin-top: auto;
-  background: var(--white);
-  color: #6366f1;
-  border: none;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
+  width: max-content;
 }
 
 .main-content {
@@ -309,7 +242,9 @@ onMounted(fetchAssignments);
   flex-direction: column;
   gap: 1.25rem;
   padding: 0.75rem 1rem;
+  width: 300%;
   background: transparent;
+  margin-left: -250px;
 }
 
 header {

@@ -235,7 +235,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Header />
+  <!-- <Header /> -->
   <div class="friends-page">
     <h1>Study Buddies</h1>
 
@@ -305,7 +305,7 @@ onMounted(() => {
 }
 
 .friends-page {
-  max-width: 600px;
+  max-width: 90%;
   margin: 2rem auto;
   padding: 2rem;
   background: var(--white);
