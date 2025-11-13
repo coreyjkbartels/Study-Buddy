@@ -1,10 +1,8 @@
 <script setup>
-
 import { useRouter } from 'vue-router'
 import { useTemplateRef, ref, onMounted } from 'vue'
 import Modal from '../components/Modal.vue'
 import Header from '@/components/Header.vue'
-
 
 const router = useRouter()
 const modal = useTemplateRef('name-modal')
@@ -18,22 +16,16 @@ const lastName = ref()
 const username = ref()
 const email = ref()
 
-
 const newFirstName = ref()
 const newLastName = ref()
 const newUsername = ref()
 const newEmail = ref()
 const newPassword = ref()
 
-
-
-
 async function grabData() {
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
   const userToken = localStorage.getItem('token');
   console.log(userToken);
-
-
 
   const options = {
     method: 'GET',
@@ -41,9 +33,7 @@ async function grabData() {
       'Content-Type' : 'application/json',
       'Authorization' : `Bearer ${userToken}`
     }
-
   }
-
 
   const response = await fetch(url, options)
 
@@ -62,382 +52,313 @@ async function grabData() {
 }
 
 async function editUser() {
+  const data = {
+    firstName: newFirstName.value || firstName.value,
+    lastName: newLastName.value || lastName.value,
+    username: newUsername.value || username.value,
+    email: newEmail.value || email.value,
+    password: newPassword.value
+  }
 
+  let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
 
+  const options = {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization' : `Bearer ${localStorage.getItem('token')}`,
+    },
+    body: JSON.stringify(data),
+  }
 
-    const data = {
-      firstName: newFirstName.value || firstName.value,
-      lastName: newLastName.value || lastName.value,
-      username: newUsername.value || username.value,
-      email: newEmail.value || email.value,
-      password: newPassword.value
-    }
+  const response = await fetch(url, options)
 
-    let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
-
-    const options = {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization' : `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(data),
-    }
-
-    const response = await fetch(url, options)
-
-    if (response.status === 200) {
-
-      localStorage.setItem('firstName', data.firstName)
-      localStorage.setItem('lastName', data.lastName)
-      localStorage.setItem('username', data.username)
-      localStorage.setItem('email', data.email)
-      grabData()
-      console.log('firstName')
-
-    } else {
-        console.log('error')
-        console.log(response.status)
-    }
+  if (response.status === 200) {
+    localStorage.setItem('firstName', data.firstName)
+    localStorage.setItem('lastName', data.lastName)
+    localStorage.setItem('username', data.username)
+    localStorage.setItem('email', data.email)
+    grabData()
+    console.log('firstName')
+  } else {
+    console.log('error')
+    console.log(response.status)
+  }
 }
 
-
-
-
-
-
-
 function cancel(e) {
-    modal.value.close(e)
+  modal.value.close(e)
 }
 
 function save(e) {
-    e.preventDefault()
-    editUser()
-    modal.value.close(e)
+  e.preventDefault()
+  editUser()
+  modal.value.close(e)
 }
-
-
-
-
-
 </script>
 
 <template>
-  <Header />
+  <!-- <Header /> -->
   <div class="main-container">
-    <div class="form-container">
-      <div class="form-header-container">
-        <button class="back-button" @click="router.back()">Go Back</button>
-        <span class="form-header">User Info</span>
-        <div class="edit-button-container">
-          <button class="edit-button" @click="modal.open"> Edit </button>
-        </div>
-
-
+    <div class="profile-card">
+      <div class="profile-header">
+        <button class="back-button" @click="router.back()">← Back</button>
+        <h1>User Profile</h1>
+        <button class="edit-button" @click="modal.open">Edit</button>
       </div>
 
-      <div class="user-info-container">
-        <div class="user-name-container">
-          <div class="input-name-wrapper">
-            <span class="input-header">First Name</span>
-            <span class="data-text">{{ firstName }}</span>
+      <div class="profile-content">
+        <div class="info-row">
+          <div class="info-field">
+            <label>First Name</label>
+            <div class="info-value">{{ firstName }}</div>
           </div>
-          <div class="input-name-wrapper">
-            <span class="input-header">Last Name</span>
-            <span class="data-text">{{ lastName }}</span>
-          </div>
-        </div>
-        <div class="user-background-container">
-          <div class="user-background-wrapper">
-            <span class="input-header">Username</span>
-            <span class="data-text large">{{ username }}</span>
-          </div>
-          <div class="user-background-wrapper">
-            <span class="input-header">Email</span>
-            <span class="data-text large">{{ email }}</span>
+          <div class="info-field">
+            <label>Last Name</label>
+            <div class="info-value">{{ lastName }}</div>
           </div>
         </div>
 
+        <div class="info-field full-width">
+          <label>Username</label>
+          <div class="info-value">{{ username }}</div>
+        </div>
+
+        <div class="info-field full-width">
+          <label>Email</label>
+          <div class="info-value">{{ email }}</div>
+        </div>
       </div>
-
     </div>
-
-
   </div>
+
   <Modal ref="name-modal">
-            <template #header>
-                <h1 class="primary-heading">Edit Profile</h1>
-            </template>
-            <template #main>
-                <div class="firstLastModal">
-                    <input
-                        type="text"
-                        v-model="newFirstName"
-                        id="firstName"
-                        name="firstName"
-                        placeholder="New First Name"
-                    />
-                    <input
-                        type="text"
-                        v-model="newLastName"
-                        id="lastName"
-                        name="lastName"
-                        placeholder="New Last Name"
-                    />
-                </div>
-                <div class="user-info-container">
-                    <input
-                        type="email"
-                        v-model="newEmail"
-                        id="userEmail"
-                        name="userEmail"
-                        placeholder="New Email"
-                        required
-                    />
-                    <input
-                        type="text"
-                        v-model="newUsername"
-                        id="username"
-                        name="username"
-                        placeholder="New Username"
-                    />
-                    <input
-                        type="text"
-                        v-model="newPassword"
-                        id="password"
-                        name="password"
-                        placeholder="New Password"
-                    />
-                </div>
-            </template>
-            <template #footer>
-                <button @click.stop="cancel">Cancel</button>
-                <button @click.stop="save">Save</button>
-            </template>
-        </Modal>
+    <template #header>
+      <h1 class="primary-heading">Edit Profile</h1>
+    </template>
+    <template #main>
+      <div class="modal-fields">
+        <input
+          type="text"
+          v-model="newFirstName"
+          id="firstName"
+          name="firstName"
+          :placeholder="firstName || 'First Name'"
+        />
+        <input
+          type="text"
+          v-model="newLastName"
+          id="lastName"
+          name="lastName"
+          :placeholder="lastName || 'Last Name'"
+        />
+        <input
+          type="text"
+          v-model="newUsername"
+          id="username"
+          name="username"
+          :placeholder="username || 'Username'"
+        />
+        <input
+          type="email"
+          v-model="newEmail"
+          id="userEmail"
+          name="userEmail"
+          :placeholder="email || 'Email'"
+          required
+        />
+        <input
+          type="password"
+          v-model="newPassword"
+          id="password"
+          name="password"
+          placeholder="New Password (leave blank to keep current)"
+        />
+      </div>
+    </template>
+    <template #footer>
+      <button @click.stop="cancel" class="cancel-btn">Cancel</button>
+      <button @click.stop="save" class="save-btn">Save</button>
+    </template>
+  </Modal>
 </template>
 
 <style scoped>
-
-
-
-.user-background-wrapper {
-  display: flex;
-  flex-direction: column;
-
-
-
-}
-
-.input-header {
-  font-size: 17px;
-  color: white;
-}
-
-
-.user-background-container {
-  display: flex;
-  flex-direction: column;
-
-  height: 300px;
-  align-items: center;
-  padding-top: 1rem;
-  gap: 3rem;
-}
-.user-name-container {
-  width: 100%;
-  height: 150px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-
-
-
-}
-.input-name-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-.data-text {
-  width: 325px;
-  height: 60px;
-  border-radius: 20px;
-  background: rgba(230, 234, 236, 0.412);
-  display: flex;
-  align-items: center;
-  justify-content: left;
-  padding-left: 1rem;
-  font-size: 20px;
-
-}
-
-
-.input-background {
-  height: 45px;
-  width: 700px;
-}
-.user-info-container {
-  width: 700px;
-  height: 450px;
-
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-arou;
-}
-
-.header-container {
-  width: 100vw;
-  height: 80px;
- background: #1976d2;
-  position: absolute;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: left;
-
-}
-
-
-.back-img {
-  width: 50px;
-
-}
-
-
-button:hover {
-  transform: scale(1.1);
-}
-
-.form-header-container {
-  height: 100px;
-  width: 700px;
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-
-
-
-}
-
-
-
-.back-button {
-  width: 60px;
-  height: 40px;
-  border: none;
-  background: rgba(233, 229, 229, 0.419);
-  margin: 0;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-
-.edit-button {
-  width: 60px;
-  height: 40px;
-  border: none;
-
-  background: rgba(233, 229, 229, 0.419);
-  border-radius: 10px;
-  cursor: pointer;
-
-
-}
-
-
-
-.form-header {
-  font-size: 35px;
-  color: rgba(255, 255, 255, 0.75);
-  padding-right: 1rem;
-}
-
-.form-container {
-  width: 800px;
-  height: 600px;
-background: linear-gradient(180deg, #6366f1 0%, #1976d2 100%);
-
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-
-
+:root {
+  --primary: #6366f1;
+  --accent: #1976d2;
+  --white: #ffffff;
+  --text: #0b1220;
+  --border: #e5e7eb;
+  --bg-light: #f9fafb;
 }
 
 .main-container {
+  min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 80px);
-  background: white;
-  position: relative;
-
-
-
-
-
+  background: var(--white);
+  padding: 1.25rem;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
-
-.large {
-  width: 700px;
+.profile-card {
+  margin-top: -100px;
+  width: 100%;
+  max-width: 700px;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
 }
 
-
-/* modal editing */
-.modal .firstLastModal {
-    display: flex;
-    flex-direction: column;
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid;
+  border-image: linear-gradient(90deg, #6366f1, #1976d2) 1;
 }
 
-.modal .user-info-container {
-    display: flex;
-    flex-direction: column;
+.profile-header h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.back-button,
+.edit-button {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--text);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.back-button:hover,
+.edit-button:hover {
+  background: var(--bg-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-field.full-width {
+  width: 100%;
+}
+
+.info-field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  padding: 1rem;
+  background: var(--bg-light);
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Modal Styles */
+:deep(.modal),
+:deep(.modal-content),
+:deep(.modal-wrapper) {
+  background: #18181b !important;
+}
+
+.modal .primary-heading {
+  margin: 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.modal .modal-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.5rem 0;
 }
 
 .modal input {
-    margin: 0.7rem 0.5rem;
-    height: 50px;
-    color: white;
-    outline: none;
-    border: 2px solid grey;
-
-    background: rgba(233, 233, 233, 0.506);
-    box-sizing: border-box;
-    padding-left: 1rem;
-    font-size: 15px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #52525b;
+  background: #3f3f46;
+  color: var(--white);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.15s ease;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
-/* Modal button styling */
+.modal input::placeholder {
+  color: #a1a1aa;
+}
+
+.modal input:focus {
+  border-color: var(--primary);
+  background: #52525b;
+}
+
 .modal button {
-    width: 100px;
-    height: 40px;
-    border-radius: 10px;
-    color: white;
-    font-size: 15px;
-
-    background: transparent;
-    backdrop-filter: blur(5px);
-    border: 2px solid grey;
-    cursor: pointer;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.modal button:hover {
-    background: rgba(174, 40, 40, 0.274);
+.modal .cancel-btn {
+  background: transparent;
+  color: #a1a1aa;
+  border: none;
 }
 
-.primary-heading {
-  margin-block: 1rem;
-  font-size: 30px;
-  color: white;
+.modal .cancel-btn:hover {
+  color: #e5e7eb;
+}
+
+.modal .save-btn {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+}
+
+.modal .save-btn:hover {
+  background: var(--accent);
 }
 </style>

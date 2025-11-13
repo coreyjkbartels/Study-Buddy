@@ -283,7 +283,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Header />
+  <!-- <Header /> -->
   <div class="messages-page">
     <div class="messages-container">
       <aside class="friends-sidebar">
@@ -371,6 +371,7 @@ onUnmounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
+  margin-left: 0vw;
 }
 
 .messages-container {
@@ -378,6 +379,7 @@ onUnmounted(() => {
   grid-template-columns: 300px 1fr;
   gap: 1rem;
   height: calc(100vh - 150px);
+  width: fit-content;
   background: var(--white);
   border-radius: var(--radius);
   overflow: hidden;
