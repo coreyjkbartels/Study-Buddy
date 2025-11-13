@@ -1,12 +1,23 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import Header from '@/components/Header.vue'
+import ProfileView from '@/views/ProfileView.vue'
+import FriendsView from '@/views/FriendsView.vue'
+import MessagesView from '@/views/MessagesView.vue'
+import GroupchatView from '@/views/GroupchatView.vue'
+import Assignment from '@/views/Assignment.vue'
 
 const router = useRouter()
+const activeTab = ref('dashboard')
 
 function signOut() {
   localStorage.clear()
   router.push('/')
+}
+
+function setActiveTab(tab) {
+  activeTab.value = tab
 }
 </script>
 
@@ -15,23 +26,75 @@ function signOut() {
 
   <div class="dashboard">
     <aside class="sidebar">
-      <h2>Study Buddy</h2>
+      <h2>Dashboard</h2>
       <nav>
-        <RouterLink to="/home" class="nav-item">Dashboard</RouterLink>
-        <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
-        <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
-        <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
-        <RouterLink to="/groupchat" class="nav-item">Group Chat</RouterLink>
-        <RouterLink to="/assignment" class="nav-item">Assignments</RouterLink>
+        <button 
+          @click="setActiveTab('profile')" 
+          :class="['nav-item', { active: activeTab === 'profile' }]"
+        >
+          Profile
+        </button>
+        <button 
+          @click="setActiveTab('friends')" 
+          :class="['nav-item', { active: activeTab === 'friends' }]"
+        >
+          Study Buddies
+        </button>
+        <button 
+          @click="setActiveTab('messages')" 
+          :class="['nav-item', { active: activeTab === 'messages' }]"
+        >
+          Messages
+        </button>
+        <button 
+          @click="setActiveTab('groupchat')" 
+          :class="['nav-item', { active: activeTab === 'groupchat' }]"
+        >
+          Group Chat
+        </button>
+        <button 
+          @click="setActiveTab('assignment')" 
+          :class="['nav-item', { active: activeTab === 'assignment' }]"
+        >
+          Assignments
+        </button>
       </nav>
       <button class="signout" @click="signOut">Sign Out</button>
     </aside>
 
     <main class="main-content">
-      <header>
-        <h1>Welcome Back!</h1>
-        <p>Here’s your Study Buddy dashboard.</p>
-      </header>
+      <!-- Dashboard Tab -->
+      <div v-if="activeTab === 'dashboard'" class="tab-content">
+        <header>
+          <h1>Welcome Back!</h1>
+          <p>Here's your Study Buddy dashboard.</p>
+        </header>
+      </div>
+
+      <!-- Profile Tab -->
+      <div v-if="activeTab === 'profile'" class="tab-content">
+        <ProfileView />
+      </div>
+
+      <!-- Study Buddies Tab -->
+      <div v-if="activeTab === 'friends'" class="tab-content">
+        <FriendsView />
+      </div>
+
+      <!-- Messages Tab -->
+      <div v-if="activeTab === 'messages'" class="tab-content">
+        <MessagesView />
+      </div>
+
+      <!-- Group Chat Tab -->
+      <div v-if="activeTab === 'groupchat'" class="tab-content">
+        <GroupchatView />
+      </div>
+
+      <!-- Assignments Tab -->
+      <div v-if="activeTab === 'assignment'" class="tab-content">
+        <Assignment />
+      </div>
     </main>
   </div>
 </template>
@@ -49,14 +112,34 @@ function signOut() {
 .dashboard {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 260px 1fr 340px;
-  /* left / center / right */
+  grid-template-columns: 260px 1fr;
   gap: var(--gap);
   background: var(--white);
   color: var(--text);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   padding: 1.25rem;
   box-sizing: border-box;
+}
+
+:deep(.messages-page) {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:deep(.messages-container) {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+:deep(.friends-page) {
+  margin-left: 10% !important;
+  padding: 0 !important;
+  width: 80% !important;
+}
+
+:deep(.friends-container) {
+  width: 80% !important;
 }
 
 .sidebar {
@@ -87,7 +170,8 @@ function signOut() {
 }
 
 .nav-item {
-  display: inline-block;
+  display: block;
+  width: 100%;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   color: var(--white);
@@ -95,11 +179,20 @@ function signOut() {
   font-weight: 600;
   transition: background .18s ease, transform .12s ease;
   text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.12);
   transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
 }
 
 .signout {
@@ -127,6 +220,13 @@ function signOut() {
   background: transparent;
 }
 
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
 header {
   background: var(--white);
   border-radius: 12px;
@@ -145,5 +245,13 @@ header h1 {
 header p {
   margin: 0;
   color: #263044;
+}
+
+.content-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(25, 118, 210, 0.06);
 }
 </style>
