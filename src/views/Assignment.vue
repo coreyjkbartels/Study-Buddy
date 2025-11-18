@@ -131,10 +131,7 @@ onMounted(fetchAssignments);
         <RouterLink to="/home" class="nav-item">Dashboard</RouterLink>
         <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
         <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
-<<<<<<< Updated upstream
         <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
-=======
->>>>>>> Stashed changes
         <RouterLink to="/assignments" class="nav-item">Assignments</RouterLink>
       </nav>
       <button class="signout" @click="signOut">Sign Out</button>
