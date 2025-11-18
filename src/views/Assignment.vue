@@ -1,13 +1,12 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Modal from '../components/Modal.vue'
-import Header from '@/components/Header.vue'
 
 const router = useRouter()
 const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app"
 
-// --- State ---
 const assignments = ref([])
 const createModal = ref(null)
 const isLoading = ref(false)
@@ -55,7 +54,7 @@ async function fetchAssignments() {
 
     if (response.ok) {
       const data = await response.json();
-      assignments.value = data.assignments || [];
+      assignments.value = data || [];
     } else {
       console.error("Failed to fetch assignments");
       assignments.value = [];
@@ -64,7 +63,6 @@ async function fetchAssignments() {
     console.error("Error fetching assignments:", error);
   }
 }
-
 async function handleSubmit() {
   if (!formData.value.title || !formData.value.subject || !formData.value.due_date) {
     errorMsg.value = "Please fill out all required fields (*).";
@@ -75,24 +73,40 @@ async function handleSubmit() {
   errorMsg.value = "";
   const token = localStorage.getItem("token");
 
+  const assignmentData = {
+    title: formData.value.title,
+    course: formData.value.subject,
+    description: formData.value.description,
+    dueDate: formData.value.due_date,
+    priority: formData.value.priority,
+  };
+
   try {
-    const response = await fetch(`${API_BASE}/assignments`, {
+    const response = await fetch(`${API_BASE}/assignment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify(formData.value)
+      body: JSON.stringify(assignmentData)
     });
 
     if (response.ok) {
       const newAssignment = await response.json();
-      assignments.value.push(newAssignment.assignment || newAssignment);
+
+      const assignmentForList = {
+        ...newAssignment,
+        subject: assignmentData.course,
+        due_date: assignmentData.dueDate,
+        priority: assignmentData.priority
+      }
+
+      assignments.value.push(assignmentForList);
       createModal.value.close();
       resetForm();
     } else {
       const errData = await response.json();
-      errorMsg.value = errData.message || "Failed to create assignment.";
+      errorMsg.value = errData.error.message || "Failed to create assignment.";
     }
   } catch (error) {
     console.error("Error creating assignment:", error);
@@ -106,7 +120,10 @@ onMounted(fetchAssignments);
 </script>
 
 <template>
+<<<<<<< Updated upstream
 <Header></Header>
+=======
+>>>>>>> Stashed changes
   <div class="dashboard">
     <aside class="sidebar">
       <h2>Study Buddy</h2>
@@ -114,7 +131,10 @@ onMounted(fetchAssignments);
         <RouterLink to="/home" class="nav-item">Dashboard</RouterLink>
         <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
         <RouterLink to="/friends" class="nav-item">Study Buddies</RouterLink>
+<<<<<<< Updated upstream
         <RouterLink to="/messages" class="nav-item">Messages</RouterLink>
+=======
+>>>>>>> Stashed changes
         <RouterLink to="/assignments" class="nav-item">Assignments</RouterLink>
       </nav>
       <button class="signout" @click="signOut">Sign Out</button>
@@ -140,10 +160,10 @@ onMounted(fetchAssignments);
             <span :class="['priority-dot', `priority-${assignment.priority.toLowerCase()}`]"></span>
             <div class="assignment-details">
               <strong>{{ assignment.title }}</strong>
-              <span>{{ assignment.subject }}</span>
+              <span>{{ assignment.subject || assignment.course }}</span>
             </div>
             <div class="assignment-due">
-              <span>Due: {{ new Date(assignment.due_date).toLocaleDateString() }}</span>
+              <span>Due: {{ new Date(assignment.due_date || assignment.dueDate).toLocaleDateString() }}</span>
             </div>
           </li>
         </ul>
