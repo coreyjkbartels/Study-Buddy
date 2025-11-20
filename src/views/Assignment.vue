@@ -123,9 +123,12 @@ async function updateAssignment() {
     title: formModel.value.title,
     course: formModel.value.course,
     description: formModel.value.description,
-    dueDate: formModel.value.dueDate,
     isComplete: formModel.value.isComplete,
   };
+
+  if (formModel.value.dueDate) {
+    updates.dueDate = formModel.value.dueDate;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/assignment/${selectedAssignment.value._id}`, {
@@ -135,6 +138,8 @@ async function updateAssignment() {
     });
 
     if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Update failed:", errorData);
       errorMessage.value = "Failed to update assignment";
       return;
     }
@@ -231,7 +236,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Header />
   <div class="page-layout">
     <div class="main-container">
 
