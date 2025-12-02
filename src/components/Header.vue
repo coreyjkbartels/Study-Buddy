@@ -31,7 +31,7 @@ async function logout() {
     <div class="container">
       <div class="logo">
         <img class="logo-image" src="../../favicon.svg" alt="App Logo" />
-        <RouterLink to="/home" class="logo-text">Study Buddy</RouterLink>
+        <RouterLink :to="{ name: 'dashboard' }" class="logo-text">Study Buddy</RouterLink>
       </div>
       <nav class="nav">
         <RouterLink to="/profile" class="clicker clicker-colored">Profile</RouterLink>

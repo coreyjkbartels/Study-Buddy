@@ -78,7 +78,7 @@ async function Join(event) {
     }
 
     router.push({
-      name: 'home',
+      name: 'dashboard',
     })
   } else if (response.status === 400) {
     const errorData = await response.json()

@@ -39,7 +39,7 @@ async function signIn(event) {
     localStorage.setItem('username', data.user.username)
 
     router.push({
-      name: 'home',
+      name: 'dashboard',
     })
   } else if (response.status === 400) {
     errormsg.value = 'Invalid email or password'
