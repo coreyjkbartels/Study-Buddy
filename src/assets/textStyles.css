@@ -1,0 +1,22 @@
+h1,
+h2,
+h3,
+h4 {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: var(--fs-heading-Xlarge);
+}
+
+h2 {
+  font-size: var(--fs-heading-large);
+}
+
+h3 {
+  font-size: var(--fs-heading-medium);
+}
+
+h4 {
+  font-size: var(--fs-heading-small);
+}

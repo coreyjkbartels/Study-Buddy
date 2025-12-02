@@ -1,4 +1,5 @@
 <script setup>
+import { fetchResponse } from '@/assets/fetch'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 let hasFriends = ref(true)
@@ -37,51 +38,24 @@ onUnmounted(() => {
 })
 
 async function getAllGroups() {
-  let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/groups'
-
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse('/groups', 'GET')
 
   if (response.status === 200) {
     let data = await response.json()
 
     allGroups.value = data
-
-    console.log('value')
-    console.log(allGroups.value)
   }
 }
 
 async function addToGroupMessages() {
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${groupSelectedId.value}/messages`
-
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/group/${groupSelectedId.value}/messages`, 'GET')
 
   if (response.status === 200) {
     let messageData = await response.json()
-    console.log(messageData)
 
     let newMessageData = messageData.filter((msg) => {
       return !groupMessages.value.some((existing) => existing._id === msg._id)
     })
-
-    console.log('working')
-    console.log(groupSelected.value)
 
     createGroupMessages(newMessageData)
   }
@@ -91,17 +65,8 @@ async function grabSelectedUsers(data) {
   addUsers.value = []
   userFriends.value = []
   let id = data.chatId
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${id}`
 
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/group/${id}`, 'GET')
 
   if (response.ok) {
     console.log(response.status)
@@ -115,12 +80,6 @@ async function grabSelectedUsers(data) {
     addUsers.value = userFriends.value.filter((friend) => {
       return !usersActive.value.some((sel) => sel.username === friend.username)
     })
-
-    console.log('bam')
-    console.log(userFriends.value)
-    console.log(addUsers.value)
-    console.log(usersActive.value)
-    console.log('bam')
   } else {
     console.log(response.status)
   }
@@ -161,7 +120,6 @@ async function getGroupMessages(data) {
 }
 
 async function createGroupMessages(messageArr) {
-  console.log(messageArr)
   let newArr = messageArr.filter((message) => 'content' in message)
 
   for (const message of newArr) {
@@ -172,10 +130,6 @@ async function createGroupMessages(messageArr) {
       _id: message._id,
     })
   }
-
-  console.log(activeGroup.value)
-
-  console.log(groupMessages.value)
 }
 
 async function sendMessage() {
@@ -321,23 +275,12 @@ async function getUsers(data) {
 }
 
 async function createGroup() {
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group`
-
   let data = {
     groupName: groupName.value,
     users: selectedFriends.value,
   }
 
-  let options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-    body: JSON.stringify(data),
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse('/group', 'POST', data)
 
   if (response.status === 201) {
     let d = await response.json()
@@ -393,22 +336,11 @@ function closeAdd() {
   addUsers.value = []
 }
 
-async function acceptInvite(invite) {
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/invite/${invite._id}`
+async function acceptInvite(invite, decision) {
   let data = {
-    isAccepted: true,
+    isAccepted: decision,
   }
-
-  let options = {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-    body: JSON.stringify(data),
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/group/invite/${invite._id}`, 'PATCH', data)
 
   if (response.ok) {
     allGroups.value = []
@@ -425,44 +357,45 @@ async function acceptInvite(invite) {
 <template>
   <div class="main-container">
     <div class="groupchat-container">
-      <div class="sidebar-chats">
-        <div class="sidebar-header">
-          <span class="sidebar-title">Groupchats</span>
-
-          <button class="add-group-button" @click="open()">+</button>
-        </div>
-        <div class="chatbox-container">
-          <div
-            class="chat-box"
-            tabindex="0"
-            v-for="group in allGroups.slice().reverse()"
-            :key="group.id"
-            @click="getGroupMessages(group)"
-          >
-            <span class="chat-box-name">{{ group.groupName }}</span>
+      <div class="sidebar-wrapper">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <h1>Groupchats</h1>
+          </div>
+          <div class="sidebar-content">
+            <button
+              class="group"
+              tabindex="0"
+              v-for="group in allGroups.slice().reverse()"
+              :key="group.id"
+              @click="getGroupMessages(group)"
+            >
+              {{ group.groupName }}
+            </button>
+          </div>
+          <div class="sidebar-footer">
+            <button class="clicker-inverted" @click="getGroupInvites()">Invites</button>
+            <button class="clicker-inverted" @click="open()">Create Group</button>
           </div>
         </div>
-        <div class="chatbox-footer">
-          <button class="invites-button" @click="getGroupInvites()">Invites</button>
-        </div>
       </div>
-      <div class="chats-container">
+      <div class="chat-container">
         <div class="no-selection" v-if="groupSelected">Select a group</div>
         <div class="selected-group-container" v-else>
           <div class="selected-group-header">
-            <span class="selected-group-name">{{ groupSelectedName }}</span>
-            <button class="addPeople" @click="openAdd()">Add People</button>
+            <h4>{{ groupSelectedName }}</h4>
+            <button class="clicker-inverted" @click="openAdd()">Add People</button>
           </div>
-          <div class="selected-group-messages">
-            <div class="users-messages">
+          <div class="messages-wrapper">
+            <div class="messages">
               <div
-                class="friends-messages"
+                class="message"
                 :class="{ self: message.senderName === myUsername }"
                 v-for="message in groupMessages.slice().reverse()"
                 :key="message.id"
               >
-                <span class="sender-name">{{ message.senderName }}</span>
-                <span class="message">{{ message.content }}</span>
+                <span class="message-sender">{{ message.senderName }}</span>
+                <span class="message-content">{{ message.content }}</span>
               </div>
             </div>
           </div>
@@ -475,21 +408,15 @@ async function acceptInvite(invite) {
               v-model="messageCreated"
               placeholder="Send Message..."
             ></textarea>
-            <button class="sendMessage" @click="sendMessage()">Send</button>
+            <button class="clicker-inverted" @click="sendMessage()">Send</button>
           </div>
         </div>
       </div>
     </div>
+
     <div class="group-modal">
       <div class="create-group-container">
-        <span class="friends-header">Friends List</span>
-
-        <div class="added-friends-container" v-show="hasFriends">
-          <div class="friend-list" v-for="friend in userFriends" :key="friend.id">
-            <div class="friend-name">{{ friend.username }}</div>
-            <button class="addFriend" @click="add(friend['_id'])">ADD</button>
-          </div>
-        </div>
+        <h1 class="modal-heading">Create Group</h1>
 
         <div class="create-name-container">
           <input
@@ -500,230 +427,136 @@ async function acceptInvite(invite) {
           />
         </div>
 
+        <div class="added-friends-container" v-show="hasFriends">
+          <div class="friend" v-for="friend in userFriends" :key="friend.id">
+            <div>{{ friend.username }}</div>
+            <button class="clicker-inverted" @click="add(friend['_id'])">Add</button>
+          </div>
+        </div>
+
         <div class="button-container">
-          <button class="cancel-group-button" @click="close()">cancel</button>
-          <button class="save-group-button" @click="save()">save</button>
+          <button class="green-btn" @click="save()">Save</button>
+          <button class="red-btn" @click="close()">Cancel</button>
         </div>
       </div>
     </div>
 
     <div class="invites-modal">
       <div class="invites-container">
+        <h1 class="modal-heading">Group Invites</h1>
         <div class="show-invites">
           <div class="invite-box" v-for="invite in userInvites" :key="invite.id">
-            <span class="invite-from">{{ invite.sender[0].username }} sent you an invite</span>
-
-            <span class="invite-group-name">{{ invite.group.name }}</span>
+            <p class="invite-message">
+              <span>{{ invite.sender[0].username }} </span> invited you to
+              <span>{{ invite.group.name }}</span>
+            </p>
 
             <div class="invite-buttons-container">
-              <button class="accept-invite" @click="acceptInvite(invite)">Accept</button>
-              <button class="decline-invite">Decline</button>
+              <button class="green-btn" @click="acceptInvite(invite, true)">Accept</button>
+              <button class="red-btn" @click="acceptInvite(invite, false)">Decline</button>
             </div>
           </div>
         </div>
 
-        <div class="invite-footer">
-          <button class="cancel-invite" @click="closeInvites()">Cancel</button>
-        </div>
+        <button class="red-btn" @click="closeInvites()">Cancel</button>
       </div>
     </div>
 
     <div class="add-modal">
-      <div class="add-people-container">
-        <div class="user-add-options" v-for="user in addUsers" :key="user.id">
-          <span class="user-add-name">{{ user.username }}</span>
-          <button class="user-add-button" @click="sendInvite(user._id)">Add</button>
+      <div class="add-modal-flex">
+        <h1 class="modal-heading">Invite Friends</h1>
+        <div>
+          <div class="user-add-options" v-for="user in addUsers" :key="user.id">
+            <span class="user-add-name">{{ user.username }}</span>
+            <button class="clicker-inverted" @click="sendInvite(user._id)">Add</button>
+          </div>
         </div>
-
-        <button class="close-add-modal" @click="closeAdd()">Exit</button>
+        <button class="red-btn" @click="closeAdd()">Exit</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-:root {
-  --primary: #6366f1;
-  --accent: #1976d2;
-  --white: #ffffff;
-  --error: #ef4444;
-  --bg-gray: #f9fafb;
-  --border-gray: #e5e7eb;
-  --text-gray: #6b7280;
-  --radius: 10px;
-  --gap: 1rem;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-/* Main Container - Matching HomeView deep styles */
 .main-container {
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  min-height: calc(100vh - 150px);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  height: 100%;
 }
-
 /* Groupchat Container - Using messages-container structure from HomeView */
 .groupchat-container {
   display: grid;
   grid-template-columns: 300px 1fr;
-  gap: 1rem;
-  height: calc(100vh - 150px);
+
+  height: 100%;
   width: 100%;
-  max-width: 100%;
-  background: var(--white);
-  border-radius: var(--radius);
+  border-radius: 12px;
+
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  margin: 0;
-  padding: 0;
+  border: 1px solid var(--c-primary);
 }
 
 /* Sidebar Styles - Matching friends-sidebar from HomeView */
-.sidebar-chats {
-  background: linear-gradient(135deg, var(--accent), var(--primary));
-  color: var(--white);
-  padding: 1.5rem;
+.sidebar-wrapper {
+  padding-block: var(--space-300);
+  height: 100%;
+  display: flex;
+}
+
+.sidebar {
+  padding-inline: var(--space-400);
+  border-right: 0.25px solid var(--c-primary);
   overflow-y: auto;
+
   display: flex;
   flex-direction: column;
+  gap: var(--space-400);
 }
 
 .sidebar-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.sidebar-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.add-group-button {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: var(--white);
-  color: var(--primary);
-  font-size: 24px;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-  display: flex;
-  align-items: center;
   justify-content: center;
-}
+  align-items: center;
 
-.add-group-button:hover {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 2px solid var(--color-background-mute);
 }
 
 /* Chatbox Container - Matching friends-list from HomeView */
-.chatbox-container {
+.sidebar-content {
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
   list-style: none;
-  padding: 0;
-  margin: 0;
-}
 
-.chat-box {
-  width: 100%;
-  min-height: 60px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
-  background: transparent;
-  border: none;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  color: var(--white);
-  font-weight: 600;
+  transition: box-shadow 0.3s ease;
 }
 
-.chat-box:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.chat-box:focus {
-  outline: none;
-  background: var(--white);
-  color: var(--primary);
-}
-
-.chat-box.active {
-  background: var(--white);
-  color: var(--primary);
-}
-
-.chat-box-name {
-  font-size: 1rem;
-  font-weight: 600;
+.group {
+  text-align: left;
 }
 
 /* Chatbox Footer */
-.chatbox-footer {
-  margin-top: auto;
+.sidebar-footer {
   padding-top: 1rem;
-  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--color-background-mute);
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
-.invites-button {
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  background: var(--white);
-  color: var(--primary);
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.invites-button:hover {
-  opacity: 0.9;
-}
-
 /* Chat Area - Matching chat-area from HomeView */
-.chats-container {
+.chat-container {
+  padding-block: var(--space-300);
+  padding-inline: var(--space-400);
   width: 100%;
   height: 100%;
+
   display: flex;
   flex-direction: column;
-  background: var(--white);
   overflow-y: auto;
-  position: relative;
 }
 
 .no-selection {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.1rem;
   color: var(--text-gray);
   display: flex;
   align-items: center;
@@ -742,108 +575,75 @@ async function acceptInvite(invite) {
 
 .selected-group-header {
   width: 100%;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--border-gray);
-  background: linear-gradient(135deg, var(--accent), var(--primary));
-  color: var(--white);
+  margin-block-start: 9.6px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
 }
 
-.selected-group-name {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.addPeople {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: var(--white);
-  color: var(--primary);
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.addPeople:hover {
-  opacity: 0.9;
-}
-
 /* Messages Area - Matching messages-list from HomeView */
-.selected-group-messages {
-  width: 100%;
+.messages-wrapper {
   flex: 1;
-  padding: 1.5rem;
-  overflow-y: auto;
   overflow-x: hidden;
+  overflow-y: scroll;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-background-mute) transparent;
+
+  margin-block: var(--space-300);
 }
 
-.users-messages {
+.messages {
   display: flex;
   flex-direction: column-reverse;
-  gap: 0.75rem;
+  gap: var(--space-075);
   min-height: 100%;
 }
 
 /* Friends Messages - Matching message structure from HomeView */
-.friends-messages {
+.message {
   display: flex;
-  margin-bottom: 0.5rem;
-  min-width: 100px;
+  flex-direction: column;
+
   max-width: 60%;
   align-self: flex-start;
 }
 
-.friends-messages.self {
+.message.self {
   justify-content: flex-end;
   align-self: flex-end;
 }
 
-.friends-messages .sender-name,
-.friends-messages .message {
-  display: block;
+.message-sender {
+  font-size: var(--fs-label-small);
+  text-align: start;
 }
 
-/* Styling the message content wrapper */
-.friends-messages {
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  word-wrap: break-word;
-  background: var(--bg-gray);
-  color: #333;
-  border-bottom-left-radius: 4px;
+.message-content {
+  text-align: start;
+  overflow-wrap: break-word;
+  font-size: var(--fs-body-medium);
+
+  border-radius: 18px;
+  padding-inline: var(--space-150);
+  padding-block: var(--space-100);
+  background: var(--color-background-mute);
 }
 
-.friends-messages.self {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: var(--white);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 4px;
+.message.self .message-content {
+  background: var(--c-primary);
 }
 
-.sender-name {
-  font-size: 0.75rem;
-  font-weight: 600;
-  opacity: 0.8;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.message {
-  font-size: 1rem;
-  display: block;
-  color: white;
+.message.self .message-sender {
+  text-align: end;
 }
 
 /* Message Input - Matching message-input-container from HomeView */
 .selected-group-send-message {
   display: flex;
   gap: 0.75rem;
-  padding: 1rem 1.5rem;
   border-top: 2px solid var(--border-gray);
   background: var(--white);
   flex-shrink: 0;
@@ -857,7 +657,7 @@ async function acceptInvite(invite) {
   font-size: 1rem;
   outline: none;
   resize: none;
-  min-height: 50px;
+  height: 50px;
 }
 
 .messageInput:focus {
@@ -909,18 +709,8 @@ async function acceptInvite(invite) {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--c-primary);
   overflow-y: auto;
-}
-
-.friends-header {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--primary);
-  border-bottom: 2px solid var(--border-gray);
-  padding-bottom: 0.75rem;
-  margin: 0;
-  text-decoration: none;
 }
 
 .added-friends-container {
@@ -928,50 +718,17 @@ async function acceptInvite(invite) {
   max-height: 300px;
   border: 2px solid var(--border-gray);
   border-radius: 8px;
-  padding: 0.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
-.friend-list {
-  padding: 0.75rem 1rem;
+.friend {
   width: 100%;
-  min-height: 50px;
-  border: none;
-  background: var(--bg-gray);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
-  border-radius: 8px;
-}
-
-.friend-name {
-  font-weight: 600;
-  color: #333;
-}
-
-.addFriend {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  border-radius: 6px;
-  background: var(--primary);
-  color: var(--white);
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.addFriend:hover {
-  opacity: 0.9;
-}
-
-.create-name-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding-block: var(--space-150);
 }
 
 .group-name {
@@ -984,41 +741,17 @@ async function acceptInvite(invite) {
   outline: none;
 }
 
-.group-name:focus {
-  border-color: var(--primary);
-}
-
 .button-container {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: stretch;
   align-items: center;
   gap: 0.75rem;
 }
 
-.cancel-group-button,
-.save-group-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.cancel-group-button {
-  background: var(--border-gray);
-  color: #333;
-}
-
-.save-group-button {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.cancel-group-button:hover,
-.save-group-button:hover {
-  opacity: 0.9;
+.red-btn,
+.green-btn {
+  flex: 1;
 }
 
 /* Invites Modal */
@@ -1031,8 +764,12 @@ async function acceptInvite(invite) {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
+  border: 1px solid var(--c-primary);
+
+  overflow-y: scroll;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-background-mute) transparent;
 }
 
 .show-invites {
@@ -1049,11 +786,14 @@ async function acceptInvite(invite) {
 .invite-box {
   width: 100%;
   min-height: 80px;
+
   padding: 1rem;
   margin-bottom: 0.75rem;
+
   border: 2px solid var(--border-gray);
   border-radius: 8px;
   background: var(--bg-gray);
+
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1074,119 +814,40 @@ async function acceptInvite(invite) {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
-}
 
-.accept-invite,
-.decline-invite {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.accept-invite {
-  background: #10b981;
-  color: var(--white);
-}
-
-.decline-invite {
-  background: var(--error);
-  color: var(--white);
-}
-
-.accept-invite:hover,
-.decline-invite:hover {
-  opacity: 0.9;
-}
-
-.invite-footer {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 2px solid var(--border-gray);
-}
-
-.cancel-invite {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  background: var(--border-gray);
-  color: #333;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.cancel-invite:hover {
-  opacity: 0.9;
+  justify-content: end;
 }
 
 /* Add People Modal */
-.add-people-container {
+.add-modal-flex {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-400);
+
   width: 600px;
   max-width: 90%;
   max-height: 80vh;
-  background: var(--white);
   border-radius: 12px;
   padding: 2rem;
   position: relative;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+  border: 1px solid var(--c-primary);
+}
+
+.modal-heading {
+  text-align: center;
+  border-bottom: 2px solid var(--color-background-mute);
 }
 
 .user-add-options {
   width: 100%;
-  min-height: 60px;
-  border: 2px solid var(--border-gray);
-  border-radius: 8px;
-  background: var(--bg-gray);
-  margin-bottom: 0.75rem;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-}
-
-.user-add-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.user-add-button {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  border-radius: 6px;
-  background: var(--primary);
-  color: var(--white);
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.user-add-button:hover {
-  opacity: 0.9;
-}
-
-.close-add-modal {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--border-gray);
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.close-add-modal:hover {
-  opacity: 0.9;
 }
 
 /* Responsive Design */
@@ -1196,15 +857,15 @@ async function acceptInvite(invite) {
     height: calc(100vh - 120px);
   }
 
-  .sidebar-chats {
+  .sidebar {
     display: none;
   }
 
-  .chats-container {
+  .chat-container {
     width: 100%;
   }
 
-  .friends-messages {
+  .message {
     max-width: 80%;
   }
 }

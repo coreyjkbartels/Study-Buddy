@@ -183,17 +183,7 @@ function save(e) {
 </template>
 
 <style scoped>
-:root {
-  --primary: #6366f1;
-  --accent: #1976d2;
-  --white: #ffffff;
-  --text: #0b1220;
-  --border: #e5e7eb;
-  --bg-light: #f9fafb;
-}
-
 .main-container {
-  min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -210,7 +200,6 @@ function save(e) {
 }
 
 .profile-card {
-  margin-top: -100px;
   width: 100%;
   max-width: 700px;
   background: var(--white);

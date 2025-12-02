@@ -34,20 +34,15 @@ async function logout() {
         <RouterLink to="/home" class="logo-text">Study Buddy</RouterLink>
       </div>
       <nav class="nav">
-        <RouterLink to="/profile" class="nav-item">Profile</RouterLink>
-        <RouterLink to="/friends" class="nav-item">Friends</RouterLink>
-        <button class="nav-item" @click="logout">Sign Out</button>
+        <RouterLink to="/profile" class="clicker clicker-colored">Profile</RouterLink>
+        <RouterLink to="/friends" class="clicker clicker-colored">Friends</RouterLink>
+        <button class="clicker clicker-colored" @click="logout">Sign Out</button>
       </nav>
     </div>
   </header>
 </template>
 
 <style scoped>
-.header {
-  padding: 1.5rem 3rem;
-  margin-bottom: 1.25rem;
-}
-
 .container {
   display: flex;
   justify-content: space-between;
@@ -79,24 +74,8 @@ async function logout() {
   text-decoration: none;
 }
 
-.nav-item {
-  background: var(--color-background);
-  color: var(--color-text);
-  border: none;
-  padding: 0.5rem 0.8rem;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: var(--fs-link-small);
-  cursor: pointer;
-  text-decoration: none;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.nav-item:hover {
-  background: var(--background-gradient);
+.clicker-colored:hover {
+  background: var(--c-primary);
   transform: translateY(-2px);
 }
 </style>

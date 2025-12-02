@@ -1,0 +1,63 @@
+.clicker {
+  border: none;
+  padding-block: var(--space-100);
+  padding-inline: var(--space-150);
+  border-radius: 8px;
+
+  background: var(--color-background);
+
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: var(--fs-link-small);
+
+  cursor: pointer;
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.1s ease;
+}
+
+button {
+  background: var(--color-background);
+  color: var(--color-text);
+
+  border: none;
+  border-radius: 8px;
+  padding-inline: var(--space-300);
+  padding-block: var(--space-150);
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: var(--color-background-mute);
+}
+
+.clicker-inverted {
+  background: var(--c-primary);
+  padding-inline: var(--space-150);
+  padding-block: var(--space-075);
+
+  font-size: var(--fs-link-small);
+}
+
+.clicker-inverted:hover {
+  background: var(--color-background-mute);
+}
+
+.red-btn:hover {
+  background-color: rgb(180, 85, 85);
+}
+
+.green-btn:hover {
+  background: #10b981;
+}
+
+.green-btn,
+.red-btn {
+  padding-inline: var(--space-150);
+  padding-block: var(--space-075);
+}
