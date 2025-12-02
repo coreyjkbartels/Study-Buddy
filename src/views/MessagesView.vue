@@ -477,12 +477,15 @@ onUnmounted(() => {
   padding: 1.5rem;
   overflow-y: auto;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .messages-wrapper {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: 0.75rem;
+  margin-top: auto;
 }
 
 .loading-indicator,
