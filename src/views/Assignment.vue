@@ -234,43 +234,47 @@ onUnmounted(() => {
 <template>
   <div class="page-layout">
     <div class="main-container">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <h2>My Assignments</h2>
-          <button @click="switchToCreateMode" class="new-btn">+ New</button>
-        </div>
+      <div class="sidebar-wrapper">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <h1>Assignments</h1>
+          </div>
+          <div class="sidebar-content">
+            <div v-if="isLoading" class="loading">Loading...</div>
+            <div v-else-if="assignments.length === 0" class="empty-state">
+              <p>No assignments found.</p>
+            </div>
+            <button
+              class="group"
+              v-else
+              v-for="asn in assignments"
+              :key="asn._id"
+              @click="selectAssignment(asn)"
+              :class="{
+                active: selectedAssignment?._id === asn._id,
+                complete: asn.isComplete,
+              }"
+            >
+              <div class="item-title">{{ asn.title }}</div>
+              <div class="item-subtitle">{{ asn.course }}</div>
+            </button>
+          </div>
 
-        <div v-if="isLoading" class="loading">Loading...</div>
-
-        <div v-else-if="assignments.length === 0" class="empty-state">
-          <p>No assignments found.</p>
-        </div>
-
-        <ul v-else class="item-list">
-          <li
-            v-for="asn in assignments"
-            :key="asn._id"
-            @click="selectAssignment(asn)"
-            :class="{
-              active: selectedAssignment?._id === asn._id,
-              complete: asn.isComplete,
-            }"
-          >
-            <div class="item-title">{{ asn.title }}</div>
-            <div class="item-subtitle">{{ asn.course }}</div>
-          </li>
-        </ul>
-      </aside>
+          <div class="sidebar-footer">
+            <button @click="switchToCreateMode" class="clicker-inverted">Create Assignment</button>
+          </div>
+        </aside>
+      </div>
 
       <main class="content-area">
         <div class="content-header">
-          <h3>
+          <h4>
             {{ selectedAssignment ? 'Edit Assignment' : 'Create New Assignment' }}
-          </h3>
+          </h4>
           <button
             v-if="selectedAssignment"
             @click="deleteAssignment(selectedAssignment._id)"
-            class="delete-btn"
+            class="clicker-inverted red-btn"
           >
             Delete
           </button>
@@ -314,13 +318,14 @@ onUnmounted(() => {
               </label>
             </div>
           </div>
-
-          <div class="form-actions">
-            <button v-if="selectedAssignment" @click="updateAssignment" class="action-btn">
-              Save Changes
-            </button>
-            <button v-else @click="createAssignment" class="action-btn">Create Assignment</button>
-          </div>
+        </div>
+        <div class="form-actions">
+          <button v-if="selectedAssignment" @click="updateAssignment" class="clicker-inverted">
+            Save Changes
+          </button>
+          <button v-else @click="createAssignment" class="clicker-inverted">
+            Create Assignment
+          </button>
         </div>
       </main>
     </div>
@@ -328,151 +333,106 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-:root {
-  --primary: #6366f1;
-  --accent: #1976d2;
-  --white: #ffffff;
-  --error: #ef4444;
-  --bg-gray: #f9fafb;
-  --border-gray: #e5e7eb;
-  --text-gray: #6b7280;
-  --radius: 10px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 .page-layout {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
+  height: 100%;
 }
 
 .main-container {
   display: grid;
   grid-template-columns: 300px 1fr;
-  gap: 1rem;
-  height: calc(100vh - 150px);
-  background: var(--white);
-  border-radius: var(--radius);
+  height: 100%;
+
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  border-radius: 12px;
+  border: 1px solid var(--c-primary);
+}
+
+.sidebar-wrapper {
+  padding-block: var(--space-300);
+  height: 100%;
+  display: flex;
 }
 
 .sidebar {
-  background: linear-gradient(135deg, var(--accent), var(--primary));
-  color: var(--white);
-  padding: 1.5rem;
+  padding-inline: var(--space-400);
+  border-right: 0.25px solid var(--c-primary);
   overflow-y: auto;
+
+  width: 100%;
+
   display: flex;
   flex-direction: column;
+  gap: var(--space-400);
 }
 
 .sidebar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 0.5rem;
+
+  border-bottom: 2px solid var(--color-background-mute);
 }
 
-.sidebar h2 {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.new-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: white;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.new-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.item-list {
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
   list-style: none;
-  padding: 0;
-  margin: 0;
-}
 
-.item-list li {
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  background: rgba(255, 255, 255, 0.1);
+  transition: box-shadow 0.3s ease;
 }
 
-.item-list li:hover {
-  background: rgba(255, 255, 255, 0.2);
+.sidebar-footer {
+  padding-top: 1rem;
+  border-top: 2px solid var(--color-background-mute);
+  display: flex;
+  gap: var(--space-075);
+  align-items: center;
 }
 
-.item-list li.active {
-  background: var(--white);
-  color: var(--primary);
+.sidebar-footer button {
+  flex: 1;
 }
 
-.item-list li.complete {
-  text-decoration: line-through;
-  opacity: 0.8;
+.group {
+  text-align: left;
 }
-
 .item-title {
   font-weight: 700;
 }
 
 .item-subtitle {
-  font-size: 0.85rem;
-  opacity: 0.9;
+  font-size: var(--fs-label-small);
 }
 
 .content-area {
-  background: var(--white);
+  padding-block: var(--space-300);
+  padding-inline: var(--space-400);
+  width: 100%;
+  height: 100%;
+
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
 .content-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--border-gray);
-  background: #f3f4f6;
+  width: 100%;
+  margin-block-start: 9.6px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.content-header h3 {
-  margin: 0;
-  color: #333;
-}
-
-.delete-btn {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #f87171;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background: #fecaca;
+  flex-shrink: 0;
 }
 
 .form-container {
-  padding: 2rem;
-  max-width: 800px;
+  flex: 1;
+  /* padding: 2rem;
+  max-width: 800px; */
 }
 
 .form-group {

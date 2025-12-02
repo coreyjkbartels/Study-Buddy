@@ -48,8 +48,15 @@ button:hover {
   background: var(--color-background-mute);
 }
 
+.red-btn {
+  color: #991b1b;
+  background: #fee2e2;
+
+  border: 1px solid #f87171;
+}
+
 .red-btn:hover {
-  background-color: rgb(180, 85, 85);
+  background-color: #fecaca;
 }
 
 .green-btn:hover {

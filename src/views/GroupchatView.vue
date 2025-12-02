@@ -506,6 +506,8 @@ async function acceptInvite(invite, decision) {
   border-right: 0.25px solid var(--c-primary);
   overflow-y: auto;
 
+  width: 100%;
+
   display: flex;
   flex-direction: column;
   gap: var(--space-400);
@@ -540,8 +542,12 @@ async function acceptInvite(invite, decision) {
   padding-top: 1rem;
   border-top: 2px solid var(--color-background-mute);
   display: flex;
-  justify-content: space-between;
+  gap: var(--space-075);
   align-items: center;
+}
+
+.sidebar-footer button {
+  flex: 1;
 }
 
 /* Chat Area - Matching chat-area from HomeView */
