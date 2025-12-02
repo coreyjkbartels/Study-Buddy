@@ -19,6 +19,30 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  --background-gradient: linear-gradient(90deg, #6366f1, #1976d2);
+}
+
+/* Font Sizes */
+:root {
+  --fs-display-large: 4.5rem;
+  --fs-display-medium: 3.75rem;
+  --fs-display-small: 3rem;
+
+  --fs-heading-Xlarge: 2rem;
+  --fs-heading-large: 1.75rem;
+  --fs-heading-medium: 1.5rem;
+  --fs-heading-small: 1.25rem;
+
+  --fs-body-large: 1.125rem;
+  --fs-body-medium: 1rem;
+  --fs-body-small: 0.875rem;
+
+  --fs-link-large: 1.125rem;
+  --fs-link-medium: 1rem;
+  --fs-link-small: 0.875rem;
+
+  --fs-label: 0.875rem;
 }
 
 /* semantic color variables for this project */
@@ -79,7 +103,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

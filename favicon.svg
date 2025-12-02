@@ -1,0 +1,65 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Study Buddy Icon</title>
+  <desc id="desc">Two people studying together over an open book with a gradient background</desc>
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1"></stop>
+      <stop offset="100%" stop-color="#1976d2"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="4" y="4" width="56" height="56" rx="14" ry="14" fill="url(#bg-gradient)"></rect>
+
+  <!-- Shared book -->
+  <path d="M20 36
+       C20 33.79 21.79 32 24 32
+       L32 32
+       C34.21 32 36 33.79 36 36
+       L36 46
+       C34.4 44.8 33.2 44 32 44
+       C30.8 44 29.6 44.8 28 46
+       C26.4 44.8 25.2 44 24 44
+       C22.8 44 21.6 44.8 20 46
+       Z" fill="#EFF6FF"></path>
+
+  <path d="M44 36
+       C44 33.79 42.21 32 40 32
+       L32 32
+       C29.79 32 28 33.79 28 36
+       L28 46
+       C29.6 44.8 30.8 44 32 44
+       C33.2 44 34.4 44.8 36 46
+       C37.6 44.8 38.8 44 40 44
+       C41.2 44 42.4 44.8 44 46
+       Z" fill="#DBEAFE"></path>
+
+  <!-- Book center line -->
+  <line x1="32" y1="33" x2="32" y2="44" stroke="#93C5FD" stroke-width="1.5" stroke-linecap="round"></line>
+
+  <!-- Left person head -->
+  <circle cx="22" cy="22" r="5" fill="#F97316"></circle>
+
+  <!-- Right person head -->
+  <circle cx="42" cy="22" r="5" fill="#FACC15"></circle>
+
+  <!-- Left person shoulders -->
+  <path d="M16 32
+       C16 28.69 18.69 26 22 26
+       C25.31 26 28 28.69 28 32
+       L28 34
+       C26.5 33.2 25.2 32.8 22 32.8
+       C18.8 32.8 17.5 33.2 16 34
+       Z" fill="#FBBF24" opacity="0.9"></path>
+
+  <!-- Right person shoulders -->
+  <path d="M36 32
+       C36 28.69 38.69 26 42 26
+       C45.31 26 48 28.69 48 32
+       L48 34
+       C46.5 33.2 45.2 32.8 42 32.8
+       C38.8 32.8 37.5 33.2 36 34
+       Z" fill="#FB923C" opacity="0.9"></path>
+</svg>

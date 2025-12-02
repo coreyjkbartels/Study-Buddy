@@ -1,237 +1,233 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import Header from "@/components/Header.vue";
+import { ref, onMounted } from 'vue'
 
-const searchTerm = ref("");
-const searchResults = ref([]);
-const friends = ref([]);
-const requests = ref([]);
-const currentUser = ref(null);
-const isSearching = ref(false);
-const errorMessage = ref("");
+const searchTerm = ref('')
+const searchResults = ref([])
+const friends = ref([])
+const requests = ref([])
+const currentUser = ref(null)
+const isSearching = ref(false)
+const errorMessage = ref('')
 
-const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
+const API_BASE = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app'
 
 function authHeaders() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token')
   return {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
-  };
+  }
 }
 
 async function fetchCurrentUser() {
   try {
     const res = await fetch(`${API_BASE}/user`, {
-      method: "GET",
+      method: 'GET',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
       if (res.status === 400 || res.status === 401) {
-        alert('Your session has expired. Please log in again.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        window.location.href = '/login';
+        alert('Your session has expired. Please log in again.')
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        window.location.href = '/login'
       }
-      return;
+      return
     }
 
-    const data = await res.json();
-    currentUser.value = data.user;
-    localStorage.setItem("userId", data.user._id);
+    const data = await res.json()
+    currentUser.value = data.user
+    localStorage.setItem('userId', data.user._id)
   } catch (err) {
-    console.error('fetchCurrentUser error:', err);
-    errorMessage.value = "Failed to load user data";
+    console.error('fetchCurrentUser error:', err)
+    errorMessage.value = 'Failed to load user data'
   }
 }
 
 async function fetchFriends() {
   try {
     const res = await fetch(`${API_BASE}/friends`, {
-      method: "GET",
+      method: 'GET',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
-      console.error('Friends fetch failed:', res.status);
-      return;
+      console.error('Friends fetch failed:', res.status)
+      return
     }
 
-    const data = await res.json();
-    const friendsList = data.friends || [];
+    const data = await res.json()
+    const friendsList = data.friends || []
 
     if (friendsList.length > 0) {
       const friendsWithUsernames = await Promise.all(
         friendsList.map(async (f) => {
           try {
             const userRes = await fetch(`${API_BASE}/user/${f.friendId}`, {
-              method: "GET",
+              method: 'GET',
               headers: authHeaders(),
-            });
+            })
 
             if (userRes.ok) {
-              const userData = await userRes.json();
+              const userData = await userRes.json()
               return {
                 friendId: f.friendId,
                 username: userData.user.username,
-                chatId: f.chatId
-              };
+                chatId: f.chatId,
+              }
             }
           } catch (err) {
-            console.error('Error fetching friend user:', err);
+            console.error('Error fetching friend user:', err)
           }
-          return { friendId: f.friendId, username: "Unknown", chatId: f.chatId };
-        })
-      );
-      friends.value = friendsWithUsernames;
+          return { friendId: f.friendId, username: 'Unknown', chatId: f.chatId }
+        }),
+      )
+      friends.value = friendsWithUsernames
     } else {
-      friends.value = [];
+      friends.value = []
     }
   } catch (err) {
-    console.error('fetchFriends error:', err);
-    errorMessage.value = "Failed to load friends";
+    console.error('fetchFriends error:', err)
+    errorMessage.value = 'Failed to load friends'
   }
 }
 
 async function fetchRequests() {
   try {
     const res = await fetch(`${API_BASE}/friends/requests`, {
-      method: "GET",
+      method: 'GET',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
-      console.error('Requests fetch failed:', res.status);
-      return;
+      console.error('Requests fetch failed:', res.status)
+      return
     }
 
-    const data = await res.json();
-    const userId = localStorage.getItem("userId");
+    const data = await res.json()
+    const userId = localStorage.getItem('userId')
 
     requests.value = data
       .filter((r) => !r.isAccepted && r.receiver?.[0]?._id === userId)
       .map((r) => ({
         id: r._id,
-        username: r.sender?.[0]?.username || "Unknown User",
-        senderId: r.sender?.[0]?._id
-      }));
+        username: r.sender?.[0]?.username || 'Unknown User',
+        senderId: r.sender?.[0]?._id,
+      }))
   } catch (err) {
-    console.error('fetchRequests error:', err);
-    errorMessage.value = "Failed to load friend requests";
+    console.error('fetchRequests error:', err)
+    errorMessage.value = 'Failed to load friend requests'
   }
 }
 
 async function searchUsers() {
   if (!searchTerm.value.trim()) {
-    searchResults.value = [];
-    return;
+    searchResults.value = []
+    return
   }
 
-  isSearching.value = true;
-  errorMessage.value = "";
+  isSearching.value = true
+  errorMessage.value = ''
 
   try {
-    const res = await fetch(
-      `${API_BASE}/users?q=${encodeURIComponent(searchTerm.value)}`,
-      {
-        method: "GET",
-        headers: authHeaders(),
-      }
-    );
+    const res = await fetch(`${API_BASE}/users?q=${encodeURIComponent(searchTerm.value)}`, {
+      method: 'GET',
+      headers: authHeaders(),
+    })
 
     if (!res.ok) {
-      errorMessage.value = "Search failed. Please try again.";
-      searchResults.value = [];
-      return;
+      errorMessage.value = 'Search failed. Please try again.'
+      searchResults.value = []
+      return
     }
 
-    const users = await res.json();
+    const users = await res.json()
 
-    const friendIds = friends.value.map(f => f.friendId);
+    const friendIds = friends.value.map((f) => f.friendId)
     searchResults.value = users.filter(
-      (u) => u._id !== currentUser.value?._id && !friendIds.includes(u._id)
-    );
+      (u) => u._id !== currentUser.value?._id && !friendIds.includes(u._id),
+    )
   } catch (err) {
-    console.error('searchUsers error:', err);
-    errorMessage.value = "Search failed. Please try again.";
-    searchResults.value = [];
+    console.error('searchUsers error:', err)
+    errorMessage.value = 'Search failed. Please try again.'
+    searchResults.value = []
   } finally {
-    isSearching.value = false;
+    isSearching.value = false
   }
 }
 
 async function sendRequest(friendId) {
   try {
     const res = await fetch(`${API_BASE}/friends/requests/${friendId}`, {
-      method: "POST",
+      method: 'POST',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
-      const errorData = await res.json();
-      errorMessage.value = errorData.Error || "Failed to send friend request";
-      return;
+      const errorData = await res.json()
+      errorMessage.value = errorData.Error || 'Failed to send friend request'
+      return
     }
 
-    searchResults.value = searchResults.value.filter(u => u._id !== friendId);
-    searchTerm.value = "";
-    errorMessage.value = "";
+    searchResults.value = searchResults.value.filter((u) => u._id !== friendId)
+    searchTerm.value = ''
+    errorMessage.value = ''
 
-    alert("Friend request sent!");
+    alert('Friend request sent!')
   } catch (err) {
-    console.error('sendRequest error:', err);
-    errorMessage.value = "Failed to send friend request";
+    console.error('sendRequest error:', err)
+    errorMessage.value = 'Failed to send friend request'
   }
 }
 
 async function acceptRequest(id) {
   try {
     const res = await fetch(`${API_BASE}/friends/requests/${id}`, {
-      method: "PATCH",
+      method: 'PATCH',
       headers: authHeaders(),
       body: JSON.stringify({ isAccepted: true }),
-    });
+    })
 
     if (!res.ok) {
-      errorMessage.value = "Failed to accept request";
-      return;
+      errorMessage.value = 'Failed to accept request'
+      return
     }
 
-    errorMessage.value = "";
-    await Promise.all([fetchFriends(), fetchRequests()]);
-    alert("Friend request accepted!");
+    errorMessage.value = ''
+    await Promise.all([fetchFriends(), fetchRequests()])
+    alert('Friend request accepted!')
   } catch (err) {
-    console.error('acceptRequest error:', err);
-    errorMessage.value = "Failed to accept request";
+    console.error('acceptRequest error:', err)
+    errorMessage.value = 'Failed to accept request'
   }
 }
 
 async function declineRequest(id) {
   try {
     const res = await fetch(`${API_BASE}/friends/requests/${id}`, {
-      method: "DELETE",
+      method: 'DELETE',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
-      errorMessage.value = "Failed to decline request";
-      return;
+      errorMessage.value = 'Failed to decline request'
+      return
     }
 
-    errorMessage.value = "";
-    await fetchRequests();
+    errorMessage.value = ''
+    await fetchRequests()
   } catch (err) {
-    console.error('declineRequest error:', err);
-    errorMessage.value = "Failed to decline request";
+    console.error('declineRequest error:', err)
+    errorMessage.value = 'Failed to decline request'
   }
 }
 
 onMounted(() => {
-  fetchCurrentUser();
-  fetchFriends();
-  fetchRequests();
-});
+  fetchCurrentUser()
+  fetchFriends()
+  fetchRequests()
+})
 </script>
 
 <template>
@@ -244,7 +240,12 @@ onMounted(() => {
     </div>
 
     <section class="add-friend">
-      <input v-model="searchTerm" @keyup.enter="searchUsers" placeholder="Enter username..." :disabled="isSearching" />
+      <input
+        v-model="searchTerm"
+        @keyup.enter="searchUsers"
+        placeholder="Enter username..."
+        :disabled="isSearching"
+      />
       <button @click="searchUsers" :disabled="isSearching">
         {{ isSearching ? 'Searching...' : 'Search' }}
       </button>
@@ -312,7 +313,13 @@ onMounted(() => {
   border-radius: var(--radius);
   border-top: 6px solid var(--primary);
   color: var(--primary);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial;
 }
 
 h1 {

@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { useTemplateRef, ref, onMounted } from 'vue'
 import Modal from '../components/Modal.vue'
-import Header from '@/components/Header.vue'
 
 const router = useRouter()
 const modal = useTemplateRef('name-modal')
@@ -24,20 +23,20 @@ const newPassword = ref()
 
 async function grabData() {
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
-  const userToken = localStorage.getItem('token');
-  console.log(userToken);
+  const userToken = localStorage.getItem('token')
+  console.log(userToken)
 
   const options = {
     method: 'GET',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${userToken}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${userToken}`,
+    },
   }
 
   const response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     const data = await response.json()
 
     firstName.value = data.user.firstName
@@ -47,7 +46,7 @@ async function grabData() {
 
     console.log(data.user)
   } else {
-    console.log("sum ting wong", response.status)
+    console.log('sum ting wong', response.status)
   }
 }
 
@@ -57,7 +56,7 @@ async function editUser() {
     lastName: newLastName.value || lastName.value,
     username: newUsername.value || username.value,
     email: newEmail.value || email.value,
-    password: newPassword.value
+    password: newPassword.value,
   }
 
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
@@ -66,7 +65,7 @@ async function editUser() {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`,
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
     body: JSON.stringify(data),
   }
@@ -201,7 +200,13 @@ function save(e) {
   background: var(--white);
   padding: 1.25rem;
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial;
 }
 
 .profile-card {

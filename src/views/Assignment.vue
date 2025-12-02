@@ -1,244 +1,239 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
-import Header from "@/components/Header.vue";
+import { ref, onMounted, onUnmounted } from 'vue'
 
-const assignments = ref([]);
-const selectedAssignment = ref(null);
-const currentUser = ref(null);
-const isLoading = ref(false);
-const errorMessage = ref("");
-const pollingInterval = ref(null);
+const assignments = ref([])
+const selectedAssignment = ref(null)
+const currentUser = ref(null)
+const isLoading = ref(false)
+const errorMessage = ref('')
+const pollingInterval = ref(null)
 
 const formModel = ref({
-  title: "",
-  course: "",
-  description: "",
-  dueDate: "",
-  isComplete: false
-});
+  title: '',
+  course: '',
+  description: '',
+  dueDate: '',
+  isComplete: false,
+})
 
-const API_BASE = "https://studdy-buddy-api-h7kw3.ondigitalocean.app";
+const API_BASE = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app'
 
 function authHeaders() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token')
   return {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
-  };
+  }
 }
 
 // 1. GETS/users
 async function fetchCurrentUser() {
   try {
     const res = await fetch(`${API_BASE}/user`, {
-      method: "GET",
+      method: 'GET',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
       if (res.status === 400 || res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        window.location.href = "/signin";
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        window.location.href = '/signin'
       }
-      return;
+      return
     }
-    const data = await res.json();
-    currentUser.value = data.user;
+    const data = await res.json()
+    currentUser.value = data.user
   } catch (err) {
-    console.error("fetchCurrentUser error:", err);
+    console.error('fetchCurrentUser error:', err)
   }
 }
 
 // 2. GETS/assignment
 async function fetchAssignments(isInitialLoad = false) {
-  if (isInitialLoad) isLoading.value = true;
+  if (isInitialLoad) isLoading.value = true
 
   try {
     const res = await fetch(`${API_BASE}/assignments`, {
-      method: "GET",
+      method: 'GET',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
-      errorMessage.value = "Failed to load assignments";
-      return;
+      errorMessage.value = 'Failed to load assignments'
+      return
     }
 
-    const data = await res.json();
-    assignments.value = data;
-
+    const data = await res.json()
+    assignments.value = data
   } catch (err) {
-    console.error("fetchAssignments error:", err);
-    errorMessage.value = "Failed to load assignments";
+    console.error('fetchAssignments error:', err)
+    errorMessage.value = 'Failed to load assignments'
   } finally {
-    if (isInitialLoad) isLoading.value = false;
+    if (isInitialLoad) isLoading.value = false
   }
 }
 
 // 3. POST /assignment
 async function createAssignment() {
   if (!formModel.value.title || !formModel.value.course) {
-    errorMessage.value = "Title and Course are required.";
-    return;
+    errorMessage.value = 'Title and Course are required.'
+    return
   }
-  const payload = { ...formModel.value };
+  const payload = { ...formModel.value }
 
   if (!payload.dueDate) {
-    delete payload.dueDate;
+    delete payload.dueDate
   }
 
-  payload.dateAssigned = new Date();
+  payload.dateAssigned = new Date()
 
   try {
     const res = await fetch(`${API_BASE}/assignment`, {
-      method: "POST",
+      method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(payload),
-    });
+    })
 
     if (!res.ok) {
-      const errorData = await res.json();
-      console.error("Server Error Details:", errorData);
+      const errorData = await res.json()
+      console.error('Server Error Details:', errorData)
 
-      errorMessage.value = "Failed to create assignment. Check console for details.";
-      return;
+      errorMessage.value = 'Failed to create assignment. Check console for details.'
+      return
     }
 
-    await fetchAssignments();
-    resetForm();
-    errorMessage.value = "";
+    await fetchAssignments()
+    resetForm()
+    errorMessage.value = ''
   } catch (err) {
-    console.error("createAssignment error:", err);
-    errorMessage.value = "Error creating assignment";
+    console.error('createAssignment error:', err)
+    errorMessage.value = 'Error creating assignment'
   }
 }
 
 // 4. PATCH /assignment/:assignmentId
 async function updateAssignment() {
-  if (!selectedAssignment.value) return;
+  if (!selectedAssignment.value) return
 
   const updates = {
     title: formModel.value.title,
     course: formModel.value.course,
     description: formModel.value.description,
     isComplete: formModel.value.isComplete,
-  };
+  }
 
   if (formModel.value.dueDate) {
-    updates.dueDate = formModel.value.dueDate;
+    updates.dueDate = formModel.value.dueDate
   }
 
   try {
     const res = await fetch(`${API_BASE}/assignment/${selectedAssignment.value._id}`, {
-      method: "PATCH",
+      method: 'PATCH',
       headers: authHeaders(),
       body: JSON.stringify(updates),
-    });
+    })
 
     if (!res.ok) {
-      const errorData = await res.json();
-      console.error("Update failed:", errorData);
-      errorMessage.value = "Failed to update assignment";
-      return;
+      const errorData = await res.json()
+      console.error('Update failed:', errorData)
+      errorMessage.value = 'Failed to update assignment'
+      return
     }
 
-    await fetchAssignments();
-    errorMessage.value = "";
-    alert("Assignment updated successfully!");
+    await fetchAssignments()
+    errorMessage.value = ''
+    alert('Assignment updated successfully!')
   } catch (err) {
-    console.error("updateAssignment error:", err);
-    errorMessage.value = "Error updating assignment";
+    console.error('updateAssignment error:', err)
+    errorMessage.value = 'Error updating assignment'
   }
 }
 
 // 5. DELETE /assignment/:assignmentId
 async function deleteAssignment(id) {
-  if (!confirm("Are you sure you want to delete this assignment?")) return;
+  if (!confirm('Are you sure you want to delete this assignment?')) return
 
   try {
     const res = await fetch(`${API_BASE}/assignment/${id}`, {
-      method: "DELETE",
+      method: 'DELETE',
       headers: authHeaders(),
-    });
+    })
 
     if (!res.ok) {
-      errorMessage.value = "Failed to delete assignment";
-      return;
+      errorMessage.value = 'Failed to delete assignment'
+      return
     }
 
     if (selectedAssignment.value && selectedAssignment.value._id === id) {
-      resetForm();
+      resetForm()
     }
 
-    await fetchAssignments();
+    await fetchAssignments()
   } catch (err) {
-    console.error("deleteAssignment error:", err);
-    errorMessage.value = "Error deleting assignment";
+    console.error('deleteAssignment error:', err)
+    errorMessage.value = 'Error deleting assignment'
   }
 }
 
-
 function selectAssignment(assignment) {
-  stopPolling();
+  stopPolling()
 
-  selectedAssignment.value = assignment;
+  selectedAssignment.value = assignment
   formModel.value = {
-    title: assignment.title || "",
-    course: assignment.course || "",
-    description: assignment.description || "",
-    dueDate: assignment.dueDate ? assignment.dueDate.split('T')[0] : "",
-    isComplete: assignment.isComplete || false
-  };
-  errorMessage.value = "";
+    title: assignment.title || '',
+    course: assignment.course || '',
+    description: assignment.description || '',
+    dueDate: assignment.dueDate ? assignment.dueDate.split('T')[0] : '',
+    isComplete: assignment.isComplete || false,
+  }
+  errorMessage.value = ''
 }
 
 function switchToCreateMode() {
-  resetForm();
-  startPolling();
+  resetForm()
+  startPolling()
 }
 
 function resetForm() {
-  selectedAssignment.value = null;
+  selectedAssignment.value = null
   formModel.value = {
-    title: "",
-    course: "",
-    description: "",
-    dueDate: "",
-    isComplete: false
-  };
+    title: '',
+    course: '',
+    description: '',
+    dueDate: '',
+    isComplete: false,
+  }
 }
 
 function startPolling() {
-  stopPolling();
+  stopPolling()
   pollingInterval.value = setInterval(() => {
-    fetchAssignments(false);
-  }, 5000);
+    fetchAssignments(false)
+  }, 5000)
 }
 
 function stopPolling() {
   if (pollingInterval.value) {
-    clearInterval(pollingInterval.value);
-    pollingInterval.value = null;
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
   }
 }
 
 onMounted(() => {
-  fetchCurrentUser();
-  fetchAssignments(true);
-  startPolling();
-});
+  fetchCurrentUser()
+  fetchAssignments(true)
+  startPolling()
+})
 
 onUnmounted(() => {
-  stopPolling();
-});
+  stopPolling()
+})
 </script>
 
 <template>
   <div class="page-layout">
     <div class="main-container">
-
       <aside class="sidebar">
         <div class="sidebar-header">
           <h2>My Assignments</h2>
@@ -252,10 +247,15 @@ onUnmounted(() => {
         </div>
 
         <ul v-else class="item-list">
-          <li v-for="asn in assignments" :key="asn._id" @click="selectAssignment(asn)" :class="{
-            active: selectedAssignment?._id === asn._id,
-            complete: asn.isComplete
-          }">
+          <li
+            v-for="asn in assignments"
+            :key="asn._id"
+            @click="selectAssignment(asn)"
+            :class="{
+              active: selectedAssignment?._id === asn._id,
+              complete: asn.isComplete,
+            }"
+          >
             <div class="item-title">{{ asn.title }}</div>
             <div class="item-subtitle">{{ asn.course }}</div>
           </li>
@@ -267,7 +267,11 @@ onUnmounted(() => {
           <h3>
             {{ selectedAssignment ? 'Edit Assignment' : 'Create New Assignment' }}
           </h3>
-          <button v-if="selectedAssignment" @click="deleteAssignment(selectedAssignment._id)" class="delete-btn">
+          <button
+            v-if="selectedAssignment"
+            @click="deleteAssignment(selectedAssignment._id)"
+            class="delete-btn"
+          >
             Delete
           </button>
         </div>
@@ -289,7 +293,12 @@ onUnmounted(() => {
 
           <div class="form-group">
             <label>Description</label>
-            <textarea v-model="formModel.description" placeholder="Details..." rows="4" class="std-input"></textarea>
+            <textarea
+              v-model="formModel.description"
+              placeholder="Details..."
+              rows="4"
+              class="std-input"
+            ></textarea>
           </div>
 
           <div class="form-row">
@@ -310,9 +319,7 @@ onUnmounted(() => {
             <button v-if="selectedAssignment" @click="updateAssignment" class="action-btn">
               Save Changes
             </button>
-            <button v-else @click="createAssignment" class="action-btn">
-              Create Assignment
-            </button>
+            <button v-else @click="createAssignment" class="action-btn">Create Assignment</button>
           </div>
         </div>
       </main>

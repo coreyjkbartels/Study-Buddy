@@ -28,32 +28,32 @@ function setActiveTab(tab) {
     <aside class="sidebar">
       <h2>Dashboard</h2>
       <nav>
-        <button 
-          @click="setActiveTab('profile')" 
+        <button
+          @click="setActiveTab('profile')"
           :class="['nav-item', { active: activeTab === 'profile' }]"
         >
           Profile
         </button>
-        <button 
-          @click="setActiveTab('friends')" 
+        <button
+          @click="setActiveTab('friends')"
           :class="['nav-item', { active: activeTab === 'friends' }]"
         >
           Study Buddies
         </button>
-        <button 
-          @click="setActiveTab('messages')" 
+        <button
+          @click="setActiveTab('messages')"
           :class="['nav-item', { active: activeTab === 'messages' }]"
         >
           Messages
         </button>
-        <button 
-          @click="setActiveTab('groupchat')" 
+        <button
+          @click="setActiveTab('groupchat')"
           :class="['nav-item', { active: activeTab === 'groupchat' }]"
         >
           Group Chat
         </button>
-        <button 
-          @click="setActiveTab('assignment')" 
+        <button
+          @click="setActiveTab('assignment')"
           :class="['nav-item', { active: activeTab === 'assignment' }]"
         >
           Assignments
@@ -116,7 +116,13 @@ function setActiveTab(tab) {
   gap: var(--gap);
   background: var(--white);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial;
   padding: 1.25rem;
   box-sizing: border-box;
 }
@@ -152,7 +158,7 @@ function setActiveTab(tab) {
   flex-direction: column;
   align-items: stretch;
   gap: 1rem;
-  box-shadow: 0 8px 30px rgba(25, 118, 210, 0.10);
+  box-shadow: 0 8px 30px rgba(25, 118, 210, 0.1);
 }
 
 .sidebar h2 {
@@ -177,7 +183,9 @@ function setActiveTab(tab) {
   color: var(--white);
   text-decoration: none;
   font-weight: 600;
-  transition: background .18s ease, transform .12s ease;
+  transition:
+    background 0.18s ease,
+    transform 0.12s ease;
   text-align: left;
   background: transparent;
   border: none;
@@ -225,14 +233,6 @@ function setActiveTab(tab) {
   flex-direction: column;
   gap: 1.25rem;
   width: 100%;
-}
-
-header {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(25, 118, 210, 0.06);
 }
 
 header h1 {

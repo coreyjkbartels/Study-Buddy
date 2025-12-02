@@ -6,9 +6,9 @@ let userFriends = ref([])
 let selectedFriends = ref([])
 let groupName = ref()
 let allGroups = ref([])
-let userInvites = ref([]);
+let userInvites = ref([])
 
-let groupSelected = ref(true);
+let groupSelected = ref(true)
 let messageCreated = ref()
 let myUsername = localStorage.getItem('username')
 
@@ -18,76 +18,46 @@ let groupMessages = ref([])
 let activeGroup = ref()
 let usersActive = ref([])
 let addUsers = ref([])
-let intervalId = setInterval(() => {
-
-  // addToGroupMessages()
-}, 20000)
-
-
-
-
+let intervalId = setInterval(() => {}, 20000)
 
 onMounted(() => {
-
- getAllGroups()
+  getAllGroups()
 })
 
 watch(groupSelected, (newVal) => {
-  if(!newVal) {
+  if (!newVal) {
     intervalId
-
-
-
   } else {
     clearInterval(intervalId)
   }
-
 })
 
 onUnmounted(() => {
   clearInterval(intervalId)
 })
 
-
-
-
-
-
-
-
-
-
-
-
 async function getAllGroups() {
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/groups'
-
 
   let options = {
     method: 'GET',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     let data = await response.json()
-
 
     allGroups.value = data
 
-
     console.log('value')
     console.log(allGroups.value)
-
   }
-
 }
-
 
 async function addToGroupMessages() {
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${groupSelectedId.value}/messages`
@@ -95,40 +65,26 @@ async function addToGroupMessages() {
   let options = {
     method: 'GET',
     headers: {
-      'Content-type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     let messageData = await response.json()
     console.log(messageData)
 
-    let newMessageData = messageData.filter(msg => {
-      return !groupMessages.value.some(existing => existing._id === msg._id)
+    let newMessageData = messageData.filter((msg) => {
+      return !groupMessages.value.some((existing) => existing._id === msg._id)
     })
 
-    console.log("working")
+    console.log('working')
     console.log(groupSelected.value)
 
     createGroupMessages(newMessageData)
-
-
-
-
-
-
-
-
-
-
-
-
   }
-
 }
 
 async function grabSelectedUsers(data) {
@@ -137,162 +93,120 @@ async function grabSelectedUsers(data) {
   let id = data.chatId
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${id}`
 
-
   let options = {
     method: 'GET',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
-
 
   let response = await fetch(url, options)
 
-
-  if(response.ok) {
+  if (response.ok) {
     console.log(response.status)
     let chatData = await response.json()
-    await getFriends();
+    await getFriends()
 
     console.log(userFriends.value)
 
     usersActive.value = chatData.users
 
-
-    addUsers.value = userFriends.value.filter(friend => {
-      return !usersActive.value.some(sel => sel.username === friend.username)
+    addUsers.value = userFriends.value.filter((friend) => {
+      return !usersActive.value.some((sel) => sel.username === friend.username)
     })
 
-
-
-
-
-
-    console.log("bam")
+    console.log('bam')
     console.log(userFriends.value)
     console.log(addUsers.value)
     console.log(usersActive.value)
-    console.log("bam")
-
-
+    console.log('bam')
   } else {
     console.log(response.status)
   }
 }
 
-
-
 async function getGroupMessages(data) {
   let chatid = data['chatId']
 
-
-  if(activeGroup.value === data) {
+  if (activeGroup.value === data) {
     addToGroupMessages()
-
   } else {
     activeGroup.value = data
     groupMessages.value = []
     addUsers.value = []
-
-
-
-
-
-
 
     let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${chatid}/messages`
 
     let options = {
       method: 'GET',
       headers: {
-        'Content-type' : 'application/json',
-        'Authorization' : `Bearer ${localStorage.getItem('token')}`
-      }
+        'Content-type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
     }
-
 
     let response = await fetch(url, options)
 
-    if(response.status === 200) {
+    if (response.status === 200) {
       let messageData = await response.json()
 
       groupSelectedId.value = chatid
       groupSelectedName.value = data.groupName
-      groupSelected.value = false;
-
-
+      groupSelected.value = false
 
       createGroupMessages(messageData)
     }
-
   }
-
 }
 
 async function createGroupMessages(messageArr) {
   console.log(messageArr)
-  let newArr = messageArr.filter(message => 'content' in message)
+  let newArr = messageArr.filter((message) => 'content' in message)
 
-  for(const message of newArr){
+  for (const message of newArr) {
     let user = await getUser(message.sender)
     groupMessages.value.push({
       content: message.content,
       senderName: user.user.username,
-      "_id": message._id
+      _id: message._id,
     })
-
-
-
   }
 
-  console.log(activeGroup.value);
-
-
+  console.log(activeGroup.value)
 
   console.log(groupMessages.value)
-
-
-
-
 }
 
-
-
 async function sendMessage() {
-
-  if(messageCreated.value == '') return
+  if (messageCreated.value == '') return
 
   let data = {
-    'content' : messageCreated.value
+    content: messageCreated.value,
   }
 
-   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${groupSelectedId.value}/message`
+  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${groupSelectedId.value}/message`
 
   let options = {
     method: 'POST',
     headers: {
-      'Content-type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
+      'Content-type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
-    console.log("message sent successful")
+  if (response.status === 200) {
+    console.log('message sent successful')
 
     addToGroupMessages()
     messageCreated.value = ''
   } else {
     console.log(response.status)
   }
-
-
 }
-
 
 async function getGroupInvites() {
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/invites'
@@ -300,25 +214,23 @@ async function getGroupInvites() {
   let options = {
     method: 'GET',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     let data = await response.json()
 
     userInvites.value = data
-    let inviteModal = document.querySelector('.invites-modal');
+    let inviteModal = document.querySelector('.invites-modal')
     inviteModal.style.display = 'flex'
 
     console.log(data)
   }
 }
-
 
 async function sendInvite(id) {
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/invite/${groupSelectedId.value}/${id}`
@@ -326,74 +238,44 @@ async function sendInvite(id) {
   let options = {
     method: 'POST',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.ok) {
+  if (response.ok) {
     console.log('successfull invite')
   } else {
     response.status
   }
 }
 
-
-
-
-
-
-
-
-
 async function getFriends() {
   let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/friends'
-
 
   let options = {
     method: 'GET',
     headers: {
-      "Content-Type" : 'application/json',
-      "Authorization" : `Bearer ${localStorage.getItem('token')}`
-    }
-
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     let data = await response.json()
 
-    for(let i = 0; i < data.friends.length; i++) {
-
+    for (let i = 0; i < data.friends.length; i++) {
       console.log(data.friends[i])
       await getUsers(data.friends[i].friendId)
-
-
-
-
     }
-
-
-
-
-
-
-
   } else {
     console.log(response.status)
   }
-
-
-
 }
-
-
-
-
 
 async function getUser(id) {
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/${id}`
@@ -401,70 +283,63 @@ async function getUser(id) {
   let options = {
     method: 'GET',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     let user = await response.json()
 
     return user
   }
 }
 
-
 async function getUsers(data) {
-
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/${data}`
 
   let options = {
     method: 'GET',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
-    }
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     let data = await response.json()
 
     userFriends.value.push(data.user)
     return data
-
   } else {
     console.log(response.status)
   }
-
 }
 
 async function createGroup() {
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group`
 
-
-
   let data = {
     groupName: groupName.value,
-    users: selectedFriends.value
+    users: selectedFriends.value,
   }
 
   let options = {
     method: 'POST',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' : `Bearer ${localStorage.getItem('token')}`
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   }
 
   let response = await fetch(url, options)
 
-  if(response.status === 201) {
+  if (response.status === 201) {
     let d = await response.json()
     console.log(d)
     console.log('group created successfully')
@@ -474,19 +349,13 @@ async function createGroup() {
   } else {
     console.log(response.status)
   }
-
 }
-
-
 
 function save() {
   let modal = document.querySelector('.group-modal')
-  modal.style.display = "none"
+  modal.style.display = 'none'
   createGroup()
-
-
 }
-
 
 function add(id) {
   selectedFriends.value.push(id)
@@ -495,7 +364,7 @@ function add(id) {
 
 function close() {
   let modal = document.querySelector('.group-modal')
-  modal.style.display = "none"
+  modal.style.display = 'none'
   selectedFriends.value = []
 }
 
@@ -504,72 +373,57 @@ async function open() {
   modal.style.display = 'flex'
   userFriends.value = []
 
-  await getFriends();
-}
-
-function openInvites() {
+  await getFriends()
 }
 
 function closeInvites() {
-  let inviteModal = document.querySelector('.invites-modal');
+  let inviteModal = document.querySelector('.invites-modal')
   inviteModal.style.display = 'none'
-
 }
 
-
-
 function openAdd() {
-  let modal = document.querySelector('.add-modal');
+  let modal = document.querySelector('.add-modal')
   modal.style.display = 'flex'
   grabSelectedUsers(activeGroup.value)
-
-
 }
 
 function closeAdd() {
-  let modal = document.querySelector('.add-modal');
+  let modal = document.querySelector('.add-modal')
   modal.style.display = 'none'
   addUsers.value = []
-
 }
 
 async function acceptInvite(invite) {
-
   let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/invite/${invite._id}`
   let data = {
-    "isAccepted": true
+    isAccepted: true,
   }
 
   let options = {
     method: 'PATCH',
     headers: {
-      'Content-Type' : 'application/json',
-      'Authorization' :  `Bearer ${localStorage.getItem('token')}`
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   }
-
 
   let response = await fetch(url, options)
 
-  if(response.ok) {
+  if (response.ok) {
     allGroups.value = []
 
-
     let index = userInvites.value.indexOf(invite)
-    if(index !== -1) userInvites.value.splice(index, 1)
+    if (index !== -1) userInvites.value.splice(index, 1)
     getAllGroups()
   } else {
     console.log(response.status)
   }
 }
-
 </script>
 
 <template>
-
   <div class="main-container">
-
     <div class="groupchat-container">
       <div class="sidebar-chats">
         <div class="sidebar-header">
@@ -578,51 +432,53 @@ async function acceptInvite(invite) {
           <button class="add-group-button" @click="open()">+</button>
         </div>
         <div class="chatbox-container">
-          <div class="chat-box" tabindex="0" v-for="group in allGroups.slice().reverse()" :key="group.id" @click="getGroupMessages(group)">
+          <div
+            class="chat-box"
+            tabindex="0"
+            v-for="group in allGroups.slice().reverse()"
+            :key="group.id"
+            @click="getGroupMessages(group)"
+          >
             <span class="chat-box-name">{{ group.groupName }}</span>
           </div>
-
-
-
-
-
-
         </div>
         <div class="chatbox-footer">
-          <button class="invites-button" @click="getGroupInvites()">invites</button>
+          <button class="invites-button" @click="getGroupInvites()">Invites</button>
         </div>
       </div>
       <div class="chats-container">
-        <div class="no-selection" v-if="groupSelected"> Select a group </div>
+        <div class="no-selection" v-if="groupSelected">Select a group</div>
         <div class="selected-group-container" v-else>
           <div class="selected-group-header">
             <span class="selected-group-name">{{ groupSelectedName }}</span>
-            <button class="addPeople" @click="openAdd()">add people</button>
-
+            <button class="addPeople" @click="openAdd()">Add People</button>
           </div>
           <div class="selected-group-messages">
             <div class="users-messages">
-              <div class="friends-messages" :class="{ self: message.senderName === myUsername}" v-for="message in groupMessages.slice().reverse()" :key="message.id">
+              <div
+                class="friends-messages"
+                :class="{ self: message.senderName === myUsername }"
+                v-for="message in groupMessages.slice().reverse()"
+                :key="message.id"
+              >
                 <span class="sender-name">{{ message.senderName }}</span>
                 <span class="message">{{ message.content }}</span>
               </div>
-
-
             </div>
-
-
           </div>
 
           <div class="selected-group-send-message">
-            <textarea name="" id="" class="messageInput" v-model="messageCreated" placeholder="Send Message..."></textarea>
+            <textarea
+              name=""
+              id=""
+              class="messageInput"
+              v-model="messageCreated"
+              placeholder="Send Message..."
+            ></textarea>
             <button class="sendMessage" @click="sendMessage()">Send</button>
-
           </div>
         </div>
-
-
       </div>
-
     </div>
     <div class="group-modal">
       <div class="create-group-container">
@@ -633,62 +489,57 @@ async function acceptInvite(invite) {
             <div class="friend-name">{{ friend.username }}</div>
             <button class="addFriend" @click="add(friend['_id'])">ADD</button>
           </div>
-
         </div>
 
         <div class="create-name-container">
-          <input type="text" class="group-name" v-model="groupName" placeholder="Enter Group Name">
+          <input
+            type="text"
+            class="group-name"
+            v-model="groupName"
+            placeholder="Enter Group Name"
+          />
         </div>
 
         <div class="button-container">
           <button class="cancel-group-button" @click="close()">cancel</button>
           <button class="save-group-button" @click="save()">save</button>
         </div>
-
       </div>
     </div>
 
     <div class="invites-modal">
       <div class="invites-container">
         <div class="show-invites">
-
           <div class="invite-box" v-for="invite in userInvites" :key="invite.id">
-            <span class="invite-from">{{ invite.sender[0].username }} sent you invite</span>
+            <span class="invite-from">{{ invite.sender[0].username }} sent you an invite</span>
 
-            <span class="invite-group-name">{{ invite.group.name}}</span>
+            <span class="invite-group-name">{{ invite.group.name }}</span>
 
             <div class="invite-buttons-container">
-              <button class="accept-invite" @click="acceptInvite(invite)">accept</button>
-              <button class="decline-invite">decline</button>
+              <button class="accept-invite" @click="acceptInvite(invite)">Accept</button>
+              <button class="decline-invite">Decline</button>
             </div>
-
           </div>
-
         </div>
-
 
         <div class="invite-footer">
-          <button class="cancel-invite" @click="closeInvites()">cancel</button>
-
+          <button class="cancel-invite" @click="closeInvites()">Cancel</button>
         </div>
       </div>
-
     </div>
 
     <div class="add-modal">
       <div class="add-people-container">
         <div class="user-add-options" v-for="user in addUsers" :key="user.id">
           <span class="user-add-name">{{ user.username }}</span>
-          <button class="user-add-button" @click="sendInvite(user._id)">add</button>
+          <button class="user-add-button" @click="sendInvite(user._id)">Add</button>
         </div>
 
-        <button class="close-add-modal" @click="closeAdd()">exit</button>
+        <button class="close-add-modal" @click="closeAdd()">Exit</button>
       </div>
     </div>
-
   </div>
 </template>
-
 
 <style scoped>
 :root {
@@ -770,7 +621,9 @@ async function acceptInvite(invite) {
   font-size: 24px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;

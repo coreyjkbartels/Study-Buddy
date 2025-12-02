@@ -1,32 +1,38 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import Header from '@/components/Header.vue';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const firstName = ref("")
-const lastName = ref("")
-const email = ref("")
-const username = ref("")
-const password = ref("")
-const confirmpassword = ref("")
-const errormsg = ref("")
+const firstName = ref('')
+const lastName = ref('')
+const email = ref('')
+const username = ref('')
+const password = ref('')
+const confirmpassword = ref('')
+const errormsg = ref('')
 
 async function Join(event) {
   event.preventDefault()
-  errormsg.value = ""
+  errormsg.value = ''
 
-  if (!firstName.value || !lastName.value || !email.value || !username.value || !password.value || !confirmpassword.value) {
-    errormsg.value = "Fill out all the fields"
+  if (
+    !firstName.value ||
+    !lastName.value ||
+    !email.value ||
+    !username.value ||
+    !password.value ||
+    !confirmpassword.value
+  ) {
+    errormsg.value = 'Fill out all the fields'
     return
   }
   if (password.value !== confirmpassword.value) {
-    errormsg.value = "Password does not match"
+    errormsg.value = 'Password does not match'
     return
   }
   if (password.value.length < 8) {
-    errormsg.value = "Atleast 8 characters"
+    errormsg.value = 'Atleast 8 characters'
     return
   }
 
@@ -35,60 +41,58 @@ async function Join(event) {
     firstName: firstName.value,
     lastName: lastName.value,
     email: email.value,
-    password: password.value
+    password: password.value,
   }
-  console.log("Sending Data:", data)
+  console.log('Sending Data:', data)
 
   const url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/user'
 
   const options = {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
   }
 
   let response = await fetch(url, options)
-  console.log("Response:", response.status);
+  console.log('Response:', response.status)
 
   if (response.status === 201) {
     const data = await response.json()
-    console.log("Registration successful:", data)
+    console.log('Registration successful:', data)
 
     localStorage.clear()
 
-    localStorage.setItem("username", data.user.username)
+    localStorage.setItem('username', data.user.username)
     localStorage.setItem('firstName', data.user.firstName)
     localStorage.setItem('lastName', data.user.lastName)
     localStorage.setItem('email', data.user.email)
     localStorage.setItem('userId', data.user._id)
 
     if (data.token) {
-      localStorage.setItem("token", data.token)
-      console.log("Token stored successfully")
+      localStorage.setItem('token', data.token)
+      console.log('Token stored successfully')
     } else {
-      console.warn("No 'token' property found in the registration response.");
+      console.warn("No 'token' property found in the registration response.")
     }
 
     router.push({
-      name: 'home'
+      name: 'home',
     })
-  }
-  else if (response.status === 400) {
+  } else if (response.status === 400) {
     const errorData = await response.json()
-    console.log("Error data:", errorData)
+    console.log('Error data:', errorData)
 
     if (errorData.errors) {
       const firstError = Object.values(errorData.errors)[0]
-      errormsg.value = firstError.message || "Invalid input"
+      errormsg.value = firstError.message || 'Invalid input'
     } else {
-      errormsg.value = "Invalid email or password"
+      errormsg.value = 'Invalid email or password'
     }
-  }
-  else if (response.status === 500) {
-    errormsg.value = "Internal Server Error"
-    console.log("Server error")
+  } else if (response.status === 500) {
+    errormsg.value = 'Internal Server Error'
+    console.log('Server error')
   }
 }
 </script>
@@ -100,33 +104,36 @@ async function Join(event) {
         <h1>Join</h1>
         <p v-if="errormsg" class="err">{{ errormsg }}</p>
         <div class="input-box">
-          <input type="text" v-model="firstName" placeholder="First Name" required>
+          <input type="text" v-model="firstName" placeholder="First Name" required />
         </div>
         <div class="input-box">
-          <input type="text" v-model="lastName" placeholder="Last Name" required>
+          <input type="text" v-model="lastName" placeholder="Last Name" required />
         </div>
         <div class="input-box">
-          <input type="email" v-model="email" placeholder="Email" required>
+          <input type="email" v-model="email" placeholder="Email" required />
         </div>
         <div class="input-box">
-          <input type="text" v-model="username" placeholder="Username" required>
+          <input type="text" v-model="username" placeholder="Username" required />
         </div>
         <div class="input-box">
-          <input type="password" v-model="password" placeholder="Password" required>
+          <input type="password" v-model="password" placeholder="Password" required />
         </div>
         <div class="input-box">
-          <input type="password" v-model="confirmpassword" placeholder="Confirm Password" required>
+          <input
+            type="password"
+            v-model="confirmpassword"
+            placeholder="Confirm Password"
+            required
+          />
         </div>
         <button class="btn" type="submit">Join</button>
         <div class="join-link">
-          <p>Already have a account? <RouterLink to="/signin">Sign in</RouterLink>
-          </p>
+          <p>Already have a account? <RouterLink to="/signin">Sign in</RouterLink></p>
         </div>
       </form>
     </div>
   </main>
 </template>
-
 
 <style scoped>
 :deep(body) {
@@ -172,15 +179,17 @@ label {
   margin-bottom: 0.4rem;
 }
 
-input[type="email"],
-input[type="password"],
-input[type="text"] {
+input[type='email'],
+input[type='password'],
+input[type='text'] {
   width: 100%;
   padding: 0.6rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 0.95rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 input:focus {
@@ -189,7 +198,7 @@ input:focus {
   outline: none;
 }
 
-button[type="submit"] {
+button[type='submit'] {
   background-color: #4f46e5;
   color: white;
   padding: 0.7rem;
@@ -201,7 +210,7 @@ button[type="submit"] {
   transition: background-color 0.2s ease;
 }
 
-button[type="submit"]:hover {
+button[type='submit']:hover {
   background-color: #4338ca;
 }
 
