@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import Header from '@/components/Header.vue'
 
 const searchTerm = ref('')
 const searchResults = ref([])
@@ -8,6 +9,7 @@ const requests = ref([])
 const currentUser = ref(null)
 const isSearching = ref(false)
 const errorMessage = ref('')
+const pollingInterval = ref(null)
 
 const API_BASE = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app'
 
@@ -94,6 +96,7 @@ async function fetchFriends() {
 }
 
 async function fetchRequests() {
+  console.log('Fetching friend requests...', new Date().toLocaleTimeString())
   try {
     const res = await fetch(`${API_BASE}/friends/requests`, {
       method: 'GET',
@@ -115,9 +118,31 @@ async function fetchRequests() {
         username: r.sender?.[0]?.username || 'Unknown User',
         senderId: r.sender?.[0]?._id,
       }))
+
+    console.log('Friend requests fetched:', requests.value.length, 'pending requests')
   } catch (err) {
     console.error('fetchRequests error:', err)
     errorMessage.value = 'Failed to load friend requests'
+  }
+}
+
+function startPolling() {
+  // Clear any existing interval
+  stopPolling()
+
+  console.log('Starting friend request polling (every 5 seconds)')
+
+  // Poll for friend requests every 5 seconds
+  pollingInterval.value = setInterval(() => {
+    fetchRequests()
+  }, 5000)
+}
+
+function stopPolling() {
+  if (pollingInterval.value) {
+    console.log('Stopping friend request polling')
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
   }
 }
 
@@ -227,6 +252,11 @@ onMounted(() => {
   fetchCurrentUser()
   fetchFriends()
   fetchRequests()
+  startPolling()
+})
+
+onUnmounted(() => {
+  stopPolling()
 })
 </script>
 
