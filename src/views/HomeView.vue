@@ -8,7 +8,7 @@ import Header from '@/components/Header.vue'
 
     <div class="dashboard">
       <nav class="sidebar">
-        <RouterLink class="clicker active" :to="{ name: 'dashboard' }">Dashboard</RouterLink>
+        <RouterLink class="clicker" :to="{ name: 'dashboard' }">Dashboard</RouterLink>
 
         <RouterLink class="clicker" :to="{ name: 'profile' }">Profile</RouterLink>
 
@@ -73,7 +73,7 @@ import Header from '@/components/Header.vue'
   transform: translateX(4px);
 }
 
-.clicker.active {
+.router-link-active {
   background: rgba(255, 255, 255, 0.2);
   font-weight: 700;
 }

@@ -355,16 +355,16 @@ async function acceptInvite(invite, decision) {
 </script>
 
 <template>
-  <div class="main-container">
-    <div class="groupchat-container">
-      <div class="sidebar-wrapper">
-        <div class="sidebar">
-          <div class="sidebar-header">
+  <div class="grid-wrapper">
+    <div class="grid-2column">
+      <div class="grid-sidebar-wrapper">
+        <div class="grid-sidebar">
+          <div class="grid-sidebar-header">
             <h1>Groupchats</h1>
           </div>
-          <div class="sidebar-content">
+          <div class="grid-sidebar-content">
             <button
-              class="group"
+              class="grid-sidebar-content-item"
               tabindex="0"
               v-for="group in allGroups.slice().reverse()"
               :key="group.id"
@@ -373,16 +373,17 @@ async function acceptInvite(invite, decision) {
               {{ group.groupName }}
             </button>
           </div>
-          <div class="sidebar-footer">
+          <div class="grid-sidebar-footer">
             <button class="clicker-inverted" @click="getGroupInvites()">Invites</button>
             <button class="clicker-inverted" @click="open()">Create Group</button>
           </div>
         </div>
       </div>
-      <div class="chat-container">
-        <div class="no-selection" v-if="groupSelected">Select a group</div>
-        <div class="selected-group-container" v-else>
-          <div class="selected-group-header">
+
+      <div class="grid-content-wrapper">
+        <div class="grid-content-no-selection" v-if="groupSelected">Select a group</div>
+        <div class="grid-content" v-else>
+          <div class="grid-content-header">
             <h4>{{ groupSelectedName }}</h4>
             <button class="clicker-inverted" @click="openAdd()">Add People</button>
           </div>
@@ -400,11 +401,11 @@ async function acceptInvite(invite, decision) {
             </div>
           </div>
 
-          <div class="selected-group-send-message">
+          <div class="message-input">
             <textarea
               name=""
               id=""
-              class="messageInput"
+              class="message-input-field"
               v-model="messageCreated"
               placeholder="Send Message..."
             ></textarea>
@@ -478,213 +479,6 @@ async function acceptInvite(invite, decision) {
 </template>
 
 <style scoped>
-.main-container {
-  height: 100%;
-}
-/* Groupchat Container - Using messages-container structure from HomeView */
-.groupchat-container {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-
-  height: 100%;
-  width: 100%;
-  border-radius: 12px;
-
-  overflow: hidden;
-  border: 1px solid var(--c-primary);
-}
-
-/* Sidebar Styles - Matching friends-sidebar from HomeView */
-.sidebar-wrapper {
-  padding-block: var(--space-300);
-  height: 100%;
-  display: flex;
-}
-
-.sidebar {
-  padding-inline: var(--space-400);
-  border-right: 0.25px solid var(--c-primary);
-  overflow-y: auto;
-
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-400);
-}
-
-.sidebar-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  border-bottom: 2px solid var(--color-background-mute);
-}
-
-/* Chatbox Container - Matching friends-list from HomeView */
-.sidebar-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-  list-style: none;
-
-  border-radius: 8px;
-  transition: box-shadow 0.3s ease;
-}
-
-.group {
-  text-align: left;
-}
-
-/* Chatbox Footer */
-.sidebar-footer {
-  padding-top: 1rem;
-  border-top: 2px solid var(--color-background-mute);
-  display: flex;
-  gap: var(--space-075);
-  align-items: center;
-}
-
-.sidebar-footer button {
-  flex: 1;
-}
-
-/* Chat Area - Matching chat-area from HomeView */
-.chat-container {
-  padding-block: var(--space-300);
-  padding-inline: var(--space-400);
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.no-selection {
-  color: var(--text-gray);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-/* Selected Group Container - Matching chat-container from HomeView */
-.selected-group-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.selected-group-header {
-  width: 100%;
-  margin-block-start: 9.6px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-/* Messages Area - Matching messages-list from HomeView */
-.messages-wrapper {
-  flex: 1;
-  overflow-x: hidden;
-  overflow-y: scroll;
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-background-mute) transparent;
-
-  margin-block: var(--space-300);
-}
-
-.messages {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: var(--space-075);
-  min-height: 100%;
-}
-
-/* Friends Messages - Matching message structure from HomeView */
-.message {
-  display: flex;
-  flex-direction: column;
-
-  max-width: 60%;
-  align-self: flex-start;
-}
-
-.message.self {
-  justify-content: flex-end;
-  align-self: flex-end;
-}
-
-.message-sender {
-  font-size: var(--fs-label-small);
-  text-align: start;
-}
-
-.message-content {
-  text-align: start;
-  overflow-wrap: break-word;
-  font-size: var(--fs-body-medium);
-
-  border-radius: 18px;
-  padding-inline: var(--space-150);
-  padding-block: var(--space-100);
-  background: var(--color-background-mute);
-}
-
-.message.self .message-content {
-  background: var(--c-primary);
-}
-
-.message.self .message-sender {
-  text-align: end;
-}
-
-/* Message Input - Matching message-input-container from HomeView */
-.selected-group-send-message {
-  display: flex;
-  gap: 0.75rem;
-  border-top: 2px solid var(--border-gray);
-  background: var(--white);
-  flex-shrink: 0;
-}
-
-.messageInput {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  resize: none;
-  height: 50px;
-}
-
-.messageInput:focus {
-  border-color: var(--primary);
-}
-
-.sendMessage {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: var(--white);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
-  transition: opacity 0.2s ease;
-}
-
-.sendMessage:hover {
-  opacity: 0.9;
-}
-
 /* Modals - Matching modal styles */
 .group-modal,
 .invites-modal,
