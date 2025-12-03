@@ -68,3 +68,9 @@ button:hover {
   padding-inline: var(--space-150);
   padding-block: var(--space-075);
 }
+
+.material-symbols-outlined {
+  vertical-align: -50px; /* Or text-bottom, or a negative pixel value */
+  line-height: 1;
+  display: inline-flex;
+}

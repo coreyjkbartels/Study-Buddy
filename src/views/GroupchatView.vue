@@ -359,7 +359,7 @@ async function acceptInvite(invite, decision) {
     <div class="grid-2column">
       <div class="grid-sidebar-wrapper">
         <div class="grid-sidebar">
-          <div class="grid-sidebar-header">
+          <div class="grid-column-header">
             <h1>Groupchats</h1>
           </div>
           <div class="grid-sidebar-content">

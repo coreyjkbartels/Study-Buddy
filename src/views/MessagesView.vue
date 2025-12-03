@@ -1,10 +1,12 @@
 <script setup>
+import { fetchResponse } from '@/assets/fetch'
+import router from '@/router'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+// import { useRoute } from 'vue-router'
 
-const route = useRoute()
-const friends = ref([])
-const selectedFriend = ref(null)
+// const route = useRoute()
+// const friends = ref([])
+const selectedChat = ref(null)
 const messages = ref([])
 const newMessage = ref('')
 const currentUser = ref(null)
@@ -13,166 +15,70 @@ const errorMessage = ref('')
 const messagesContainer = ref(null)
 const pollingInterval = ref(null)
 
-const API_BASE = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app'
-
-function authHeaders() {
-  const token = localStorage.getItem('token')
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  }
-}
+const chats = ref([])
 
 async function fetchCurrentUser() {
   try {
-    const res = await fetch(`${API_BASE}/user`, {
-      method: 'GET',
-      headers: authHeaders(),
-    })
+    const response = await fetchResponse('/user', 'GET')
 
-    if (!res.ok) {
-      if (res.status === 400 || res.status === 401) {
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 401) {
         localStorage.removeItem('token')
         localStorage.removeItem('userId')
-        window.location.href = '/signin'
+        router.push({ name: 'splash' })
       }
       return
     }
 
-    const data = await res.json()
+    const data = await response.json()
     currentUser.value = data.user
   } catch (err) {
     console.error('fetchCurrentUser error:', err)
   }
 }
 
-async function fetchFriends() {
+async function fetchChats() {
   try {
-    const res = await fetch(`${API_BASE}/friends`, {
-      method: 'GET',
-      headers: authHeaders(),
-    })
+    const response = await fetchResponse('/chats', 'GET')
 
-    if (!res.ok) {
-      if (res.status === 400 || res.status === 401) {
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 401) {
         localStorage.removeItem('token')
         localStorage.removeItem('userId')
-        window.location.href = '/signin'
+
+        router.push({ name: 'splash' })
         return
       }
-      console.error('Friends fetch failed:', res.status)
+      console.error('Chat fetch failed:', response.status)
       return
     }
 
-    const data = await res.json()
-
-    let friendsList = []
-
-    if (data.friends) {
-      friendsList = data.friends
-    } else if (Array.isArray(data)) {
-      friendsList = data
-    } else if (data._id && data.friends) {
-      friendsList = data.friends
-    }
-
-    if (friendsList.length > 0) {
-      const friendsWithUsernames = await Promise.all(
-        friendsList.map(async (f) => {
-          try {
-            const userRes = await fetch(`${API_BASE}/user/${f.friendId}`, {
-              method: 'GET',
-              headers: authHeaders(),
-            })
-
-            if (userRes.ok) {
-              const userData = await userRes.json()
-              return {
-                friendId: f.friendId,
-                username: userData.user.username,
-                chatId: f.chatId,
-              }
-            }
-          } catch (err) {
-            console.error('Error fetching friend user:', err)
-          }
-          return { friendId: f.friendId, username: 'Unknown', chatId: f.chatId }
-        }),
-      )
-
-      friends.value = friendsWithUsernames
-
-      const friendIdFromRoute = route.params.friendId
-      if (friendIdFromRoute) {
-        const friend = friendsWithUsernames.find((f) => f.friendId === friendIdFromRoute)
-        if (friend) {
-          selectFriend(friend)
-        }
-      }
-    } else {
-      friends.value = []
-    }
-  } catch (err) {
-    console.error('fetchFriends error:', err)
+    const data = await response.json()
+    chats.value = data
+  } catch (error) {
+    console.log(error)
   }
 }
 
-async function fetchMessages(friendId, isInitialLoad = false) {
-  if (!friendId) return
+async function fetchMessages(chatId, isInitialLoad = false) {
+  if (!chatId) return
 
   if (isInitialLoad) {
     isLoading.value = true
   }
 
   try {
-    const res = await fetch(`${API_BASE}/friend/${friendId}/messages`, {
-      method: 'GET',
-      headers: authHeaders(),
-    })
+    const response = await fetchResponse(`/chat/${chatId}/messages`, 'GET')
 
-    if (!res.ok) {
+    if (!response.ok) {
       errorMessage.value = 'Failed to load messages'
       return
     }
 
-    const data = await res.json()
-    console.log('Raw API response:', data)
-
-    let newMessages = []
-
-    if (Array.isArray(data)) {
-      if (data.length > 0 && data[0].messages) {
-        data.forEach((bucket) => {
-          if (bucket.messages && Array.isArray(bucket.messages)) {
-            newMessages.push(...bucket.messages)
-          }
-        })
-      } else {
-        newMessages = data
-      }
-    } else if (data.messages && Array.isArray(data.messages)) {
-      newMessages = data.messages
-    } else if (typeof data === 'object') {
-      const keys = Object.keys(data)
-      for (const key of keys) {
-        if (Array.isArray(data[key])) {
-          if (data[key].length > 0 && data[key][0].messages) {
-            data[key].forEach((bucket) => {
-              if (bucket.messages && Array.isArray(bucket.messages)) {
-                newMessages.push(...bucket.messages)
-              }
-            })
-          } else if (data[key].length > 0 && data[key][0].content) {
-            newMessages = data[key]
-          }
-        }
-      }
-    }
-
-    console.log('Processed messages:', newMessages)
+    const data = await response.json()
 
     const wasAtBottom = isAtBottom()
-    messages.value = newMessages
+    messages.value = data.reverse()
 
     if (isInitialLoad || wasAtBottom) {
       await nextTick()
@@ -199,8 +105,8 @@ function isAtBottom() {
 function startPolling() {
   stopPolling()
   pollingInterval.value = setInterval(() => {
-    if (selectedFriend.value) {
-      fetchMessages(selectedFriend.value.friendId, false)
+    if (selectedChat.value) {
+      fetchMessages(selectedChat.value._id, false)
     }
   }, 2000)
 }
@@ -212,39 +118,40 @@ function stopPolling() {
   }
 }
 
-function selectFriend(friend) {
+function selectChat(chat) {
   stopPolling()
-  selectedFriend.value = friend
+  selectedChat.value = chat
   messages.value = []
   errorMessage.value = ''
-  fetchMessages(friend.friendId, true)
+  fetchMessages(chat._id, true)
   startPolling()
 }
 
 async function sendMessage() {
-  if (!newMessage.value.trim() || !selectedFriend.value) return
+  console.log(selectedChat.value)
+
+  if (!newMessage.value.trim() || !selectedChat.value) {
+    return
+  }
 
   const messageContent = newMessage.value.trim()
   newMessage.value = ''
+  const data = { content: messageContent }
 
   try {
-    const res = await fetch(`${API_BASE}/friend/${selectedFriend.value.friendId}/message`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ content: messageContent }),
-    })
+    const response = await fetchResponse(`/chat/${selectedChat.value._id}/message`, 'POST', data)
 
-    if (!res.ok) {
+    if (!response.ok) {
       errorMessage.value = 'Failed to send message'
       newMessage.value = messageContent
       return
     }
 
-    const sentMessage = await res.json()
+    const sentMessage = await response.json()
     console.log('Message sent successfully:', sentMessage)
 
     setTimeout(() => {
-      fetchMessages(selectedFriend.value.friendId, false)
+      fetchMessages(selectedChat.value._id, false)
     }, 100)
   } catch (err) {
     console.error('sendMessage error:', err)
@@ -259,13 +166,19 @@ function scrollToBottom() {
   }
 }
 
-function isOwnMessage(message) {
-  return message.sender === currentUser.value?._id
+function getChatName(chat) {
+  if (chat.chatType === 'group') {
+    return chat.groupName
+  }
+
+  return chat.users[0].username === currentUser.value.username
+    ? chat.users[1].username
+    : chat.users[0].username
 }
 
-onMounted(() => {
+onMounted(async () => {
   fetchCurrentUser()
-  fetchFriends()
+  fetchChats()
 })
 
 onUnmounted(() => {
@@ -279,31 +192,36 @@ onUnmounted(() => {
     <div class="grid-2column">
       <div class="grid-sidebar-wrapper">
         <div class="grid-sidebar">
-          <h1 class="grid-sidebar-header">Messages</h1>
-          <div v-if="friends.length === 0" class="empty-state">
-            <p>No friends yet. Add friends to start messaging!</p>
+          <h1 class="grid-column-header">Messages</h1>
+          <div v-if="chats.length === 0" class="empty-state">
+            <p>Add friends or join groups to start messaging!</p>
           </div>
           <div class="grid-sidebar-content">
             <button
-              v-for="f in friends"
-              :key="f.friendId"
-              @click="selectFriend(f)"
+              v-for="c in chats"
+              :key="c._id"
+              @click="selectChat(c)"
               class="grid-sidebar-content-item"
-              :class="{ active: selectedFriend?.friendId === f.friendId }"
+              :class="{ active: selectedChat?.chatId === c.chatId }"
             >
-              {{ f.username }}
+              {{ getChatName(c) }}
+
+              <div v-if="c.chatType === 'group'" class="group-indicator">
+                <span class="material-symbols-outlined"> group </span>
+                <span>{{ c.users.length }}</span>
+              </div>
             </button>
           </div>
         </div>
       </div>
 
       <div class="grid-content-wrapper">
-        <div v-if="!selectedFriend" class="grid-content-no-selection">
+        <div v-if="!selectedChat" class="grid-content-no-selection">
           <p>Select a friend to start messaging</p>
         </div>
         <div v-else class="grid-content">
-          <div class="grid-content-header">
-            <h4>{{ selectedFriend.username }}</h4>
+          <div class="grid-column-header">
+            <h1>{{ getChatName(selectedChat) }}</h1>
           </div>
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
@@ -319,9 +237,10 @@ onUnmounted(() => {
                 :key="`${msg.sender}-${msg.content}-${index}`"
                 class="message"
                 :class="{
-                  self: isOwnMessage(msg),
+                  self: msg.senderUsername === currentUser.username,
                 }"
               >
+                <div class="message-sender">{{ msg.senderUsername }}</div>
                 <div class="message-content">
                   {{ msg.content }}
                 </div>
@@ -349,6 +268,23 @@ onUnmounted(() => {
   padding: 2rem 1rem;
   color: rgba(255, 255, 255, 0.8);
   font-style: italic;
+}
+
+.grid-sidebar-content-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.grid-sidebar-content-item .material-symbols-outlined {
+  font-size: inherit;
+}
+
+.group-indicator {
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-label);
+  gap: 3px;
 }
 
 @media (max-width: 768px) {
