@@ -1,6 +1,5 @@
 export async function fetchResponse(endpoint, fetchMethod, data) {
-  const url = `http://localhost:3001${endpoint}`
-  // const url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app${endpoint}`
+  const url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app${endpoint}`
 
   const options = {
     method: fetchMethod,
