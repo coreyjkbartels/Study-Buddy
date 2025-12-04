@@ -150,6 +150,10 @@ function toggleSessionCreation() {
   creatingNewSession.value = true
 }
 
+function isToday(dayIndex, weekOffset) {
+  return today.value.getDate() === getDate(dayIndex, weekOffset)
+}
+
 function getDate(dayIndex, weekOffset) {
   let previousMonthLength = today.value.getMonth() - 1
   if (previousMonthLength < 0) previousMonthLength = 11
@@ -183,7 +187,7 @@ onUnmounted(() => {
     </div>
 
     <div class="info-card-row">
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(0, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Sun</span>
@@ -196,7 +200,7 @@ onUnmounted(() => {
         </template>
       </DateCard>
 
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(1, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Mon</span>
@@ -209,7 +213,7 @@ onUnmounted(() => {
         </template>
       </DateCard>
 
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(2, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Tue</span>
@@ -222,7 +226,7 @@ onUnmounted(() => {
         </template>
       </DateCard>
 
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(3, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Wed</span>
@@ -235,7 +239,7 @@ onUnmounted(() => {
         </template>
       </DateCard>
 
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(4, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Thu</span>
@@ -248,7 +252,7 @@ onUnmounted(() => {
         </template>
       </DateCard>
 
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(5, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Fri</span>
@@ -261,7 +265,7 @@ onUnmounted(() => {
         </template>
       </DateCard>
 
-      <DateCard>
+      <DateCard :class="{ 'today-card': isToday(6, weekOffset) }">
         <template #date>
           <div class="column">
             <span>Sat</span>
@@ -368,6 +372,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.pink {
+  background-color: pink;
+}
+
 .column {
   flex: 1;
   display: flex;
@@ -388,5 +396,9 @@ onUnmounted(() => {
 
 .form-group textarea {
   height: 50px;
+}
+
+.today-card {
+  border: 1px solid var(--c-primary);
 }
 </style>

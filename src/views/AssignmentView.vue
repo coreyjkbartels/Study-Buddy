@@ -332,7 +332,7 @@ onUnmounted(() => {
       <div class="grid-card">
         <div class="tabs">
           <div v-if="isLoading" class="loading">Loading...</div>
-          <div v-else-if="assignments.length === 0" class="empty-state">
+          <div v-else-if="assignments.length === 0" class="grid-content-no-selection">
             <p>No assignments found.</p>
           </div>
           <button
