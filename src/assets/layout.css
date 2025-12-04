@@ -184,3 +184,34 @@
 .messageInput:focus {
   border-color: var(--primary);
 }
+
+.main-column {
+  padding-inline: var(--space-400);
+  padding-block: var(--space-300);
+
+  height: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--c-primary);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-400);
+}
+
+.main-column-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding-inline: var(--space-300);
+  padding-block: var(--space-150);
+
+  border-bottom: 2px solid var(--color-background-mute);
+}
+
+.info-card-row {
+  padding-inline: var(--space-300);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-600);
+}

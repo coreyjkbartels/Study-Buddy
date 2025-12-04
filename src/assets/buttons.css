@@ -45,7 +45,8 @@ button:hover {
 }
 
 .clicker-inverted:hover {
-  background: var(--color-background-mute);
+  background: var(--c-primary);
+  filter: brightness(125%);
 }
 
 .red-btn {

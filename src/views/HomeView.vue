@@ -18,7 +18,9 @@ import Header from '@/components/Header.vue'
 
         <RouterLink class="clicker" :to="{ name: 'groupchat' }">GroupChat</RouterLink>
 
-        <RouterLink class="clicker" :to="{ name: 'assignments' }">Assignments</RouterLink>
+        <RouterLink class="clicker" :to="{ name: 'assignmentList' }">Assignments</RouterLink>
+
+        <RouterLink class="clicker" :to="{ name: 'assignmentList' }">Schedule</RouterLink>
       </nav>
 
       <main class="main-content">
