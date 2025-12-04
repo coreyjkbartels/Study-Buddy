@@ -48,7 +48,7 @@ async function getAllGroups() {
 }
 
 async function addToGroupMessages() {
-  let response = await fetchResponse(`/group/${groupSelectedId.value}/messages`, 'GET')
+  let response = await fetchResponse(`/chat/${groupSelectedId.value}/messages`, 'GET')
 
   if (response.status === 200) {
     let messageData = await response.json()
@@ -95,17 +95,7 @@ async function getGroupMessages(data) {
     groupMessages.value = []
     addUsers.value = []
 
-    let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${chatid}/messages`
-
-    let options = {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    }
-
-    let response = await fetch(url, options)
+    let response = await fetchResponse(`/chat/${chatid}/messages`, 'GET')
 
     if (response.status === 200) {
       let messageData = await response.json()
@@ -126,7 +116,7 @@ async function createGroupMessages(messageArr) {
     let user = await getUser(message.sender)
     groupMessages.value.push({
       content: message.content,
-      senderName: user.user.username,
+      senderName: user.username,
       _id: message._id,
     })
   }
@@ -139,18 +129,7 @@ async function sendMessage() {
     content: messageCreated.value,
   }
 
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/${groupSelectedId.value}/message`
-
-  let options = {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-    body: JSON.stringify(data),
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/chat/${groupSelectedId.value}/message`, 'POST', data)
 
   if (response.status === 200) {
     console.log('message sent successful')
@@ -163,17 +142,7 @@ async function sendMessage() {
 }
 
 async function getGroupInvites() {
-  let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/invites'
-
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse('/group/invites', 'GET')
 
   if (response.status === 200) {
     let data = await response.json()
@@ -187,17 +156,7 @@ async function getGroupInvites() {
 }
 
 async function sendInvite(id) {
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/group/invite/${groupSelectedId.value}/${id}`
-
-  let options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/group/invite/${groupSelectedId.value}/${id}`, 'POST')
 
   if (response.ok) {
     console.log('successfull invite')
@@ -207,17 +166,7 @@ async function sendInvite(id) {
 }
 
 async function getFriends() {
-  let url = 'https://studdy-buddy-api-h7kw3.ondigitalocean.app/friends'
-
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse('/friends', 'GET')
 
   if (response.status === 200) {
     let data = await response.json()
@@ -232,17 +181,7 @@ async function getFriends() {
 }
 
 async function getUser(id) {
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/${id}`
-
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/user/${id}`, 'GET')
 
   if (response.status === 200) {
     let user = await response.json()
@@ -252,17 +191,7 @@ async function getUser(id) {
 }
 
 async function getUsers(data) {
-  let url = `https://studdy-buddy-api-h7kw3.ondigitalocean.app/user/${data}`
-
-  let options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-  }
-
-  let response = await fetch(url, options)
+  let response = await fetchResponse(`/user/${data}`, 'GET')
 
   if (response.status === 200) {
     let data = await response.json()
