@@ -2,7 +2,6 @@
 import { fetchResponse } from '@/assets/fetch'
 import InfoCard from '@/components/InfoCard.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
 
 const assignments = ref([])
 const selectedAssignment = ref(null)
@@ -184,29 +183,6 @@ async function fetchAssignmentCounts() {
   }
 }
 
-// 5. DELETE /assignment/:assignmentId
-// async function deleteAssignment(assignmentId) {
-//   if (!confirm('Are you sure you want to delete this assignment?')) return
-
-//   try {
-//     const response = await fetchResponse(`/assignment/${assignmentId}`, 'DELETE')
-
-//     if (!response.ok) {
-//       errorMessage.value = 'Failed to delete assignment'
-//       return
-//     }
-
-//     if (selectedAssignment.value && selectedAssignment.value._id === assignmentId) {
-//       resetForm()
-//     }
-
-//     await fetchAssignments()
-//   } catch (err) {
-//     console.error('deleteAssignment error:', err)
-//     errorMessage.value = 'Error deleting assignment'
-//   }
-// }
-
 function selectAssignment(assignment) {
   stopPolling()
 
@@ -353,8 +329,8 @@ onUnmounted(() => {
     </div>
 
     <div class="grid">
-      <div class="assignment-list grid-card">
-        <div class="assignments">
+      <div class="grid-card">
+        <div class="tabs">
           <div v-if="isLoading" class="loading">Loading...</div>
           <div v-else-if="assignments.length === 0" class="empty-state">
             <p>No assignments found.</p>
@@ -371,10 +347,10 @@ onUnmounted(() => {
             }"
           >
             <div class="tab-header">
-              <div class="item-title">{{ assignment.title }}</div>
-              <div class="item-subtitle">{{ assignment.course }}</div>
+              <div class="tab-title">{{ assignment.title }}</div>
+              <div class="tab-subtitle">{{ assignment.course }}</div>
             </div>
-            <div class="item-description">{{ truncateText(assignment.description, 72) }}</div>
+            <div class="tab-description">{{ truncateText(assignment.description, 72) }}</div>
           </button>
         </div>
       </div>
@@ -382,7 +358,9 @@ onUnmounted(() => {
       <div class="grid-card">
         <!-- New Assignment -->
         <div v-if="creatingNewAssignment" class="right-card-wrapper">
-          <h3>New Assignment</h3>
+          <div class="right-card-header">
+            <h3>New Assignment</h3>
+          </div>
           <div class="form-container">
             <div class="form-group">
               <label>Assignment Title</label>
@@ -411,7 +389,9 @@ onUnmounted(() => {
         </div>
 
         <div v-else-if="editingAssignment" class="right-card-wrapper">
-          <h3>Edit Assignment</h3>
+          <div class="right-card-header">
+            <h3>Edit Assignment</h3>
+          </div>
           <div class="form-container">
             <div class="form-group">
               <label>Assignment Title</label>
@@ -442,7 +422,7 @@ onUnmounted(() => {
 
         <!-- Assignment Details -->
         <div v-else-if="selectedAssignment" class="right-card-wrapper">
-          <div class="assignment-header">
+          <div class="right-card-header">
             <div class="title-with-icon">
               <h3>{{ selectedAssignment.title }}</h3>
               <button
@@ -507,22 +487,22 @@ onUnmounted(() => {
               </button>
             </div>
           </div>
-          <p class="assignment-description">{{ selectedAssignment.description }}</p>
+          <p class="right-card-description">{{ selectedAssignment.description }}</p>
 
-          <div class="assignment-meta">
-            <div class="assignment-meta-item">
+          <div>
+            <div class="right-card-meta">
               <h4>Course:</h4>
               <span>{{ selectedAssignment.course }}</span>
             </div>
-            <div class="assignment-meta-item">
+            <div class="right-card-meta">
               <h4>Status:</h4>
               <span>{{ selectedAssignment.status }}</span>
             </div>
-            <div class="assignment-meta-item">
+            <div class="right-card-meta">
               <h4>Date Assigned:</h4>
               <span>{{ formatISOString(selectedAssignment.dateAssigned) }}</span>
             </div>
-            <div class="assignment-meta-item">
+            <div class="right-card-meta">
               <h4>Date Due:</h4>
               <span>{{ formatISOString(selectedAssignment.dueDate) }}</span>
             </div>
@@ -538,88 +518,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: 3fr 4fr;
-  gap: var(--space-600);
-
-  height: 100%;
-  width: 100%;
-  border-radius: 12px;
-  padding-inline: var(--space-300);
-}
-
-.grid-card {
-  padding: var(--space-200);
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  background: var(--color-background-soft);
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0.5px 1px hsla(0, 0%, 100%, 0.1),
-    0 0 0 1px hsla(230, 13%, 9%, 0.075),
-    0 0.3px 0.4px hsla(230, 13%, 9%, 0.02),
-    0 0.9px 1.5px hsla(230, 13%, 9%, 0.045),
-    0 3.5px 6px hsla(230, 13%, 9%, 0.09);
-}
-
-.assignments {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-150);
-}
-
-.tab {
-  text-align: left;
-
-  padding-inline: var(--space-300);
-  padding-block: var(--space-150);
-  background: var(--color-background-soft);
-}
-
-.tab:hover,
-.active {
-  background: var(--color-background);
-}
-
-.tab-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  font-weight: 700;
-}
-
-.item-description {
-  font-size: var(--fs-label);
-}
-
-.item-subtitle {
-  font-size: var(--fs-label-small);
-}
-
-.right-card-wrapper {
-  padding-inline: var(--space-300);
-  padding-block: var(--space-075);
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-400);
-
-  height: 100%;
-}
-
-.assignment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .title-with-icon {
   display: flex;
   align-items: center;
@@ -637,65 +535,18 @@ onUnmounted(() => {
 
 .status-button {
   display: flex;
+  align-self: baseline;
 }
 
 .status-buttons-row {
   display: flex;
   gap: var(--space-075);
+
+  align-self: baseline;
 }
 
 .status-button {
   border: 8px;
   font-size: var(--fs-heading-small);
-}
-
-.assignment-description {
-  flex: 1;
-}
-
-.assignment-meta-item {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-100);
-}
-
-.form-container {
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group input,
-.form-group textarea {
-  background-color: var(--color-background-soft);
-  border: 1px solid var(--color-text);
-  padding-block: var(--space-050);
-  padding-inline: var(--space-100);
-
-  color: var(--color-text);
-  resize: none;
-}
-
-.form-group textarea {
-  width: 100%;
-  height: 85px;
-}
-
-@media (max-width: 768px) {
-  .main-container {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .sidebar {
-    max-height: 300px;
-  }
 }
 </style>

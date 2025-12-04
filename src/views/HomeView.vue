@@ -16,8 +16,6 @@ import Header from '@/components/Header.vue'
 
         <RouterLink class="clicker" :to="{ name: 'messages' }">Messages</RouterLink>
 
-        <RouterLink class="clicker" :to="{ name: 'groupchat' }">GroupChat</RouterLink>
-
         <RouterLink class="clicker" :to="{ name: 'assignments' }">Assignments</RouterLink>
 
         <RouterLink class="clicker" :to="{ name: 'schedule' }">Schedule</RouterLink>

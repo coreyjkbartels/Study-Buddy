@@ -10,7 +10,6 @@ import MessagesView from '../views/MessagesView.vue'
 import AssignmentView from '../views/AssignmentView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import ScheduleView from '@/views/ScheduleView.vue'
-import GroupchatView from '@/views/GroupchatView.vue'
 
 const routes = [
   { path: '/', name: 'splash', component: SplashView },
@@ -19,7 +18,6 @@ const routes = [
     path: '/home', name: 'home', component: HomeView,
     children: [
       { path: '/dashboard', name: 'dashboard', component: DashboardView },
-      { path: '/groupchat', name: 'groupchat', component: GroupchatView },
       { path: '/profile', name: 'profile', component: ProfileView },
       { path: '/friends', name: 'friends', component: FriendsView },
       { path: '/messages', name: 'messages', component: MessagesView },

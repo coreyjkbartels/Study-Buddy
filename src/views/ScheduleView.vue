@@ -293,10 +293,10 @@ onUnmounted(() => {
             }"
           >
             <div class="tab-header">
-              <div class="item-title">{{ session.name }}</div>
-              <div class="item-subtitle">{{ session.location }}</div>
+              <div class="tab-title">{{ session.name }}</div>
+              <div class="tab-subtitle">{{ session.location }}</div>
             </div>
-            <div class="item-description">{{ truncateText(session.description, 72) }}</div>
+            <div class="tab-description">{{ truncateText(session.description, 72) }}</div>
           </button>
         </div>
       </div>
@@ -304,7 +304,9 @@ onUnmounted(() => {
       <div class="grid-card">
         <!-- New Session -->
         <div v-if="creatingNewSession" class="right-card-wrapper right-card-wrapper-tighter">
-          <h3>New Session</h3>
+          <div class="right-card-header">
+            <h3>New Session</h3>
+          </div>
           <div class="form-container">
             <div class="form-group">
               <label>Session Name</label>
@@ -336,21 +338,21 @@ onUnmounted(() => {
 
         <!-- Session Details -->
         <div v-else-if="selectedSession" class="right-card-wrapper">
-          <div class="assignment-header">
+          <div class="right-card-header">
             <h3>{{ selectedSession.name }}</h3>
           </div>
-          <p class="assignment-description">{{ selectedSession.description }}</p>
+          <p class="right-card-description">{{ selectedSession.description }}</p>
 
-          <div class="assignment-meta">
-            <div class="assignment-meta-item">
+          <div>
+            <div class="right-card-meta">
               <h4>Location:</h4>
               <span>{{ selectedSession.location }}</span>
             </div>
-            <div class="assignment-meta-item">
+            <div class="right-card-meta">
               <h4>Session Date:</h4>
               <span>{{ formatISOString(selectedSession.date) }}</span>
             </div>
-            <div class="assignment-meta-item">
+            <div class="right-card-meta">
               <h4>Date Created:</h4>
               <span>{{ formatISOString(selectedSession.createdAt) }}</span>
             </div>
@@ -380,178 +382,11 @@ onUnmounted(() => {
   border-top: 1px solid var(--color-text);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 3fr 4fr;
-  gap: var(--space-600);
-
-  height: 100%;
-  width: 100%;
-  border-radius: 12px;
-  padding-inline: var(--space-300);
-}
-
-.grid-card {
-  padding: var(--space-200);
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  background: var(--color-background-soft);
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0.5px 1px hsla(0, 0%, 100%, 0.1),
-    0 0 0 1px hsla(230, 13%, 9%, 0.075),
-    0 0.3px 0.4px hsla(230, 13%, 9%, 0.02),
-    0 0.9px 1.5px hsla(230, 13%, 9%, 0.045),
-    0 3.5px 6px hsla(230, 13%, 9%, 0.09);
-}
-
-.tabs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-150);
-}
-
-.tab {
-  text-align: left;
-
-  padding-inline: var(--space-300);
-  padding-block: var(--space-150);
-  background: var(--color-background-soft);
-}
-
-.tab:hover,
-.active {
-  background: var(--color-background);
-}
-
-.tab-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  font-weight: 700;
-}
-
-.item-description {
-  font-size: var(--fs-label);
-}
-
-.item-subtitle {
-  font-size: var(--fs-label-small);
-}
-
-.right-card-wrapper {
-  padding-inline: var(--space-300);
-  padding-block: var(--space-075);
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-400);
-
-  height: 100%;
-}
-
 .right-card-wrapper-tighter {
   gap: var(--space-300);
 }
 
-.assignment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title-with-icon {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-#edit-button {
-  padding: 0px;
-  background-color: transparent;
-  font-size: var(--fs-body-medium);
-
-  position: relative;
-  translate: 0px 7px;
-}
-
-.status-button {
-  display: flex;
-}
-
-.status-buttons-row {
-  display: flex;
-  gap: var(--space-075);
-}
-
-.status-button {
-  border: 8px;
-  font-size: var(--fs-heading-small);
-}
-
-.assignment-description {
-  flex: 1;
-}
-
-.assignment-meta-item {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-100);
-}
-
-.form-container {
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group-row {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-300);
-}
-
-.form-group-row .form-group {
-  flex: 1;
-}
-
-.form-group input,
 .form-group textarea {
-  background-color: var(--color-background-soft);
-  border: 1px solid var(--color-text);
-  padding-block: var(--space-050);
-  padding-inline: var(--space-100);
-
-  color: var(--color-text);
-  resize: none;
-}
-
-.form-group textarea {
-  width: 100%;
   height: 50px;
-}
-
-@media (max-width: 768px) {
-  .main-container {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .sidebar {
-    max-height: 300px;
-  }
 }
 </style>

@@ -2,10 +2,8 @@
 import { fetchResponse } from '@/assets/fetch'
 import router from '@/router'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-// import { useRoute } from 'vue-router'
 
-// const route = useRoute()
-// const friends = ref([])
+const friends = ref([])
 const selectedChat = ref(null)
 const messages = ref([])
 const newMessage = ref('')
@@ -15,7 +13,12 @@ const errorMessage = ref('')
 const messagesContainer = ref(null)
 const pollingInterval = ref(null)
 
+const creatingNewGroup = ref(false)
+const invitingMembers = ref(false)
+
 const chats = ref([])
+
+const formModel = ref({ groupName: '', users: [] })
 
 async function fetchCurrentUser() {
   try {
@@ -32,6 +35,26 @@ async function fetchCurrentUser() {
 
     const data = await response.json()
     currentUser.value = data.user
+  } catch (err) {
+    console.error('fetchCurrentUser error:', err)
+  }
+}
+
+async function fetchFriends() {
+  try {
+    const response = await fetchResponse('/friends', 'GET')
+
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        router.push({ name: 'splash' })
+      }
+      return
+    }
+
+    const data = await response.json()
+    friends.value = data.friends
   } catch (err) {
     console.error('fetchCurrentUser error:', err)
   }
@@ -55,6 +78,20 @@ async function fetchChats() {
 
     const data = await response.json()
     chats.value = data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+async function createGroup() {
+  try {
+    const data = formModel.value
+
+    const response = await fetchResponse('/group', 'POST', data)
+
+    if (response.ok) {
+      await fetchChats()
+    }
   } catch (error) {
     console.log(error)
   }
@@ -121,6 +158,8 @@ function stopPolling() {
 function selectChat(chat) {
   stopPolling()
   selectedChat.value = chat
+  creatingNewGroup.value = false
+  invitingMembers.value = false
   messages.value = []
   errorMessage.value = ''
   fetchMessages(chat._id, true)
@@ -176,6 +215,42 @@ function getChatName(chat) {
     : chat.users[0].username
 }
 
+async function toggleGroupCreation() {
+  creatingNewGroup.value = true
+  invitingMembers.value = false
+  selectedChat.value = null
+  await fetchFriends()
+}
+async function toggleInviteMembers() {
+  creatingNewGroup.value = false
+  console.log(selectedChat.value)
+  invitingMembers.value = true
+  await fetchFriends()
+  filterFriends()
+}
+
+async function filterFriends() {
+  const alreadyInGroup = selectedChat.value.users.map((f) => {
+    return f.userId
+  })
+
+  friends.value = friends.value.filter((f) => !alreadyInGroup.includes(f.friendId))
+}
+
+async function inviteMembers() {
+  try {
+    for (let i = 0; i < formModel.value.users.length; i++) {
+      const userId = formModel.value.users[i]
+
+      await fetchResponse(`/group/invite/${selectedChat.value._id}/${userId}`, 'POST')
+    }
+
+    invitingMembers.value = false
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 onMounted(async () => {
   fetchCurrentUser()
   fetchChats()
@@ -187,48 +262,104 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- <Header /> -->
-  <div class="grid-wrapper">
-    <div class="grid-2column">
-      <div class="grid-sidebar-wrapper">
-        <div class="grid-sidebar">
-          <h1 class="grid-column-header">Messages</h1>
+  <div class="main-column">
+    <div class="main-column-heading">
+      <h1>Messages</h1>
+      <button class="clicker clicker-inverted" @click="toggleGroupCreation()">Create Group</button>
+    </div>
+
+    <div class="grid">
+      <div class="grid-card">
+        <div class="tabs">
           <div v-if="chats.length === 0" class="empty-state">
-            <p>Add friends or join groups to start messaging!</p>
+            <p>No chats found. Make friends</p>
           </div>
-          <div class="grid-sidebar-content">
-            <button
-              v-for="c in chats"
-              :key="c._id"
-              @click="selectChat(c)"
-              class="grid-sidebar-content-item"
-              :class="{ active: selectedChat?.chatId === c.chatId }"
-            >
-              {{ getChatName(c) }}
+          <button
+            v-else
+            v-for="c in chats"
+            :key="c._id"
+            @click="selectChat(c)"
+            class="tab clicker"
+            :class="{ active: selectedChat?.chatId === c.chatId }"
+          >
+            <div class="tab-header">
+              <div class="tab-title">{{ getChatName(c) }}</div>
 
               <div v-if="c.chatType === 'group'" class="group-indicator">
                 <span class="material-symbols-outlined"> group </span>
                 <span>{{ c.users.length }}</span>
               </div>
-            </button>
-          </div>
+            </div>
+          </button>
         </div>
       </div>
 
-      <div class="grid-content-wrapper">
-        <div v-if="!selectedChat" class="grid-content-no-selection">
-          <p>Select a friend to start messaging</p>
+      <div class="grid-card">
+        <div v-if="creatingNewGroup" class="right-card-wrapper">
+          <div class="right-card-header">
+            <h3>New Group</h3>
+          </div>
+
+          <div class="form-container">
+            <div class="form-group">
+              <label>Group Name</label>
+              <input v-model="formModel.groupName" placeholder="e.g. Artful Monkeys" />
+            </div>
+
+            <div class="form-group">
+              <label>Users</label>
+
+              <div v-for="friend in friends" :key="friend.friendId" class="form-row">
+                <input
+                  type="checkbox"
+                  :id="friend.friendUsername"
+                  :value="friend.friendId"
+                  v-model="formModel.users"
+                />
+                <label :for="friend.friendUsername">{{ friend.friendUsername }}</label>
+              </div>
+            </div>
+          </div>
+          <button class="clicker-inverted" @click="createGroup()">Submit</button>
         </div>
-        <div v-else class="grid-content">
-          <div class="grid-column-header">
-            <h1>{{ getChatName(selectedChat) }}</h1>
+        <div v-else-if="invitingMembers" class="right-card-wrapper">
+          <div class="right-card-header">
+            <h3>Inviting Users</h3>
+          </div>
+
+          <div class="form-container">
+            <div class="form-group">
+              <label>Users</label>
+
+              <div v-for="friend in friends" :key="friend.friendId" class="form-row">
+                <input
+                  type="checkbox"
+                  :id="friend.friendUsername"
+                  :value="friend.friendId"
+                  v-model="formModel.users"
+                />
+                <label :for="friend.friendUsername">{{ friend.friendUsername }}</label>
+              </div>
+            </div>
+          </div>
+          <button class="clicker-inverted" @click="inviteMembers()">Submit</button>
+        </div>
+        <div v-else-if="selectedChat" class="right-card-wrapper right-card-wrapper-tighter">
+          <div class="right-card-header">
+            <h3>{{ getChatName(selectedChat) }}</h3>
+            <button
+              v-if="selectedChat.chatType === 'group'"
+              class="clicker-inverted"
+              @click="toggleInviteMembers()"
+            >
+              +
+            </button>
           </div>
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
           </div>
           <div class="messages-wrapper">
-            <div v-if="isLoading" class="grid-content-no-selection">Loading messages...</div>
-            <div v-else-if="messages.length === 0" class="grid-content-no-selection">
+            <div v-if="messages.length === 0" class="grid-content-no-selection">
               No messages yet. Start the conversation!
             </div>
             <div v-else class="messages">
@@ -257,6 +388,9 @@ onUnmounted(() => {
             <button @click="sendMessage" class="clicker-inverted">Send</button>
           </div>
         </div>
+        <div v-else class="right-card-wrapper grid-content-no-selection">
+          <p>Select a chat to start messaging</p>
+        </div>
       </div>
     </div>
   </div>
@@ -270,16 +404,6 @@ onUnmounted(() => {
   font-style: italic;
 }
 
-.grid-sidebar-content-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.grid-sidebar-content-item .material-symbols-outlined {
-  font-size: inherit;
-}
-
 .group-indicator {
   display: flex;
   align-items: center;
@@ -287,18 +411,19 @@ onUnmounted(() => {
   gap: 3px;
 }
 
-@media (max-width: 768px) {
-  .messages-container {
-    grid-template-columns: 1fr;
-    height: calc(100vh - 120px);
-  }
+.right-card-wrapper-tighter {
+  gap: var(--space-050);
+}
 
-  .friends-sidebar {
-    display: none;
-  }
+.form-container {
+  justify-content: start;
+  gap: var(--space-300);
+}
 
-  .message-content {
-    max-width: 80%;
-  }
+.form-row {
+  display: flex;
+  gap: var(--space-100);
+
+  align-items: center;
 }
 </style>
