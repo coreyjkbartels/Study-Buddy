@@ -300,8 +300,9 @@ function save() {
   createGroup()
 }
 
-function add(id) {
+function add(id, index) {
   selectedFriends.value.push(id)
+  userFriends.value.splice(index, 1);
   console.log(selectedFriends.value)
 }
 
@@ -430,7 +431,7 @@ async function acceptInvite(invite, decision) {
         <div class="added-friends-container" v-show="hasFriends">
           <div class="friend" v-for="friend in userFriends" :key="friend.id">
             <div>{{ friend.username }}</div>
-            <button class="clicker-inverted" @click="add(friend['_id'])">Add</button>
+            <button class="clicker-inverted" @click="add(friend['_id'], friend.id)">Add</button>
           </div>
         </div>
 
