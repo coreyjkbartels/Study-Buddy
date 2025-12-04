@@ -7,11 +7,10 @@ import SignUpView from '../views/SignUpView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import FriendsView from '../views/FriendsView.vue'
 import MessagesView from '../views/MessagesView.vue'
-// import GroupchatView from '../views/GroupchatView.vue'
 import AssignmentView from '../views/AssignmentView.vue'
 import DashboardView from '@/views/DashboardView.vue'
-import AssignmentList from '@/components/AssignmentList.vue'
-import AssignmentDetails from '@/components/AssignmentDetails.vue'
+import ScheduleView from '@/views/ScheduleView.vue'
+import GroupchatView from '@/views/GroupchatView.vue'
 
 const routes = [
   { path: '/', name: 'splash', component: SplashView },
@@ -20,21 +19,12 @@ const routes = [
     path: '/home', name: 'home', component: HomeView,
     children: [
       { path: '/dashboard', name: 'dashboard', component: DashboardView },
-      { path: '/groupchat', name: 'groupchat', component: AssignmentList },
+      { path: '/groupchat', name: 'groupchat', component: GroupchatView },
       { path: '/profile', name: 'profile', component: ProfileView },
       { path: '/friends', name: 'friends', component: FriendsView },
       { path: '/messages', name: 'messages', component: MessagesView },
-      {
-        path: '/assignments', name: 'assignments', component: AssignmentView,
-        children: [
-          {
-            path: '', name: 'assignmentList', component: AssignmentList,
-            children: [
-              { path: '/assignments/:assignmentId', name: 'assignmentDetails', component: AssignmentDetails, props: true }
-            ]
-          }
-        ]
-      }
+      { path: '/assignments', name: 'assignments', component: AssignmentView },
+      { path: '/schedule', name: 'schedule', component: ScheduleView },
 
     ]
   },

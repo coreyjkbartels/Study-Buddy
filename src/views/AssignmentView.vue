@@ -359,11 +359,10 @@ onUnmounted(() => {
           <div v-else-if="assignments.length === 0" class="empty-state">
             <p>No assignments found.</p>
           </div>
-          <RouterLink
+          <button
             class="tab clicker"
             v-else
             v-for="assignment in assignments"
-            :to="{ name: 'assignmentDetails', params: { assignmentId: assignment._id } }"
             :key="assignment._id"
             @click="selectAssignment(assignment)"
             :class="{
@@ -376,7 +375,7 @@ onUnmounted(() => {
               <div class="item-subtitle">{{ assignment.course }}</div>
             </div>
             <div class="item-description">{{ truncateText(assignment.description, 72) }}</div>
-          </RouterLink>
+          </button>
         </div>
       </div>
 
@@ -582,7 +581,7 @@ onUnmounted(() => {
 }
 
 .tab:hover,
-.router-link-active {
+.active {
   background: var(--color-background);
 }
 
