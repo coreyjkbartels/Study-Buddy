@@ -49,15 +49,8 @@ button:hover {
   filter: brightness(125%);
 }
 
-.red-btn {
-  color: #991b1b;
-  background: #fee2e2;
-
-  border: 1px solid #f87171;
-}
-
 .red-btn:hover {
-  background-color: #fecaca;
+  background-color: #f87171;
 }
 
 .green-btn:hover {

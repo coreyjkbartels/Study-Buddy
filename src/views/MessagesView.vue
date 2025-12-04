@@ -4,6 +4,7 @@ import router from '@/router'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
 const friends = ref([])
+const invites = ref()
 const selectedChat = ref(null)
 const messages = ref([])
 const newMessage = ref('')
@@ -15,6 +16,7 @@ const pollingInterval = ref(null)
 
 const creatingNewGroup = ref(false)
 const invitingMembers = ref(false)
+const viewingInvites = ref(false)
 
 const chats = ref([])
 
@@ -55,6 +57,26 @@ async function fetchFriends() {
 
     const data = await response.json()
     friends.value = data.friends
+  } catch (err) {
+    console.error('fetchCurrentUser error:', err)
+  }
+}
+
+async function fetchInvites() {
+  try {
+    const response = await fetchResponse('/group/invites', 'GET')
+
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        router.push({ name: 'splash' })
+      }
+      return
+    }
+
+    const data = await response.json()
+    invites.value = data
   } catch (err) {
     console.error('fetchCurrentUser error:', err)
   }
@@ -219,14 +241,37 @@ async function toggleGroupCreation() {
   creatingNewGroup.value = true
   invitingMembers.value = false
   selectedChat.value = null
+  viewingInvites.value = false
   await fetchFriends()
 }
+
 async function toggleInviteMembers() {
   creatingNewGroup.value = false
   console.log(selectedChat.value)
   invitingMembers.value = true
+  viewingInvites.value = false
   await fetchFriends()
   filterFriends()
+}
+
+async function toggleInvites() {
+  creatingNewGroup.value = false
+  console.log(selectedChat.value)
+  invitingMembers.value = false
+  viewingInvites.value = true
+  await fetchInvites()
+}
+
+async function handleInvite(requestId, decision) {
+  const data = {
+    isAccepted: decision,
+  }
+  const response = await fetchResponse(`/group/invite/${requestId}`, 'PATCH', data)
+
+  if (!response.ok) {
+    console.log(response.status)
+  }
+  viewingInvites.value = false
 }
 
 async function filterFriends() {
@@ -265,7 +310,12 @@ onUnmounted(() => {
   <div class="main-column">
     <div class="main-column-heading">
       <h1>Messages</h1>
-      <button class="clicker clicker-inverted" @click="toggleGroupCreation()">Create Group</button>
+      <div class="form-row">
+        <button class="clicker clicker-inverted" @click="toggleGroupCreation()">
+          Create Group
+        </button>
+        <button class="clicker clicker-inverted" @click="toggleInvites()">Invites</button>
+      </div>
     </div>
 
     <div class="grid">
@@ -343,6 +393,28 @@ onUnmounted(() => {
             </div>
           </div>
           <button class="clicker-inverted" @click="inviteMembers()">Submit</button>
+        </div>
+        <div v-else-if="viewingInvites" class="right-card-wrapper">
+          <div class="right-card-header">
+            <h3>Invites</h3>
+          </div>
+
+          <div class="form-container">
+            <div v-for="invite in invites" :key="invite._id" class="invite">
+              <p>
+                <em>{{ invite.sender[0].username }}</em> invited you to
+                <em>{{ invite.group.name }}</em>
+              </p>
+              <div class="form-row">
+                <button class="clicker-inverted green-btn" @click="handleInvite(invite._id, true)">
+                  Accept
+                </button>
+                <button class="clicker-inverted red-btn" @click="handleInvite(invite._id, false)">
+                  Decline
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div v-else-if="selectedChat" class="right-card-wrapper right-card-wrapper-tighter">
           <div class="right-card-header">
